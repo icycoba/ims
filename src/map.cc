@@ -26,11 +26,11 @@ Map::~Map(){
 
 }
 
-int Map::get_width(){
+unsigned int Map::get_width(){
     return this->width;
 }
 
-int Map::get_height(){
+unsigned int Map::get_height(){
     return this->height;
 }
 
