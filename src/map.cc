@@ -36,10 +36,10 @@ std::vector<std::vector<Cell>> Map::get_cells(){
     return this->cells;
 }
 
-void Map::set_width(int width){
+void Map::set_width(unsigned int width){
     this->width = width;
 }
 
-void Map::set_height(int height){
+void Map::set_height(unsigned int height){
     this->height = height;
 }
