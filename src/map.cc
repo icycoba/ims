@@ -1,5 +1,5 @@
 /**
- * @file main.hh
+ * @file map.cc
  * @author Martin Hlinský (xhlins01)
  * @author Dziyana Khrystsiuk (xkhrys00)
  * 
@@ -18,6 +18,10 @@ Map::Map(){
 Map::Map(unsigned int width, unsigned int height){
     this->width = width;
     this->height = height;
+}
+
+Map::~Map(){
+
 }
 
 int Map::get_width(){

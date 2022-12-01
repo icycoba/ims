@@ -1,5 +1,5 @@
 /**
- * @file main.hh
+ * @file cell.hh
  * @author Martin Hlinský (xhlins01)
  * @author Dziyana Khrystsiuk (xkhrys00)
  * 

@@ -1,13 +1,17 @@
 CXX=g++
-CXXFLAGS=-Wall -Wextra -std=c++17
+CXXFLAGS=-g -Wall -Wextra -std=c++17
+LIBS=-lglut -lGLU -lGL
 
 all: cracksim
 
-cracksim: main.o cell.o
-	$(CXX) $(CXXFLAGS) main.o cell.o -o cracksim
+cracksim: map.o cell.o main.o 
+	$(CXX) $(CXXFLAGS) main.o cell.o map.o -o cracksim $(LIBS)
 
 main.o: main.cc main.hh cell.hh
 	$(CXX) $(CXXFLAGS) -c main.cc
+
+map.o: map.cc map.hh
+	$(CXX) $(CXXFLAGS) -c map.cc
 
 cell.o: cell.cc cell.hh
 	$(CXX) $(CXXFLAGS) -c cell.cc

@@ -1,5 +1,5 @@
 /**
- * @file main.hh
+ * @file cell.cc
  * @author Martin Hlinský (xhlins01)
  * @author Dziyana Khrystsiuk (xkhrys00)
  * 
@@ -14,6 +14,10 @@ Cell::Cell(){
     this->x = 0;
     this->y = 0;
     this->state = 0;
+}
+
+Cell::~Cell(){
+    
 }
 
 int Cell::get_x(){

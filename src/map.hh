@@ -1,5 +1,5 @@
 /**
- * @file main.hh
+ * @file map.hh
  * @author Martin Hlinský (xhlins01)
  * @author Dziyana Khrystsiuk (xkhrys00)
  * 
@@ -9,6 +9,7 @@
  */
 
 #include "cell.hh"
+using namespace std;
 
 #include <vector>
 
@@ -36,7 +37,7 @@ class Map{
         float elasticitySharing;
 
         // Map cells
-        std::vector<std::vector<Cell>> cells;
+        vector<vector<Cell>> cells;
     public:
         // Constructor/destructor
         Map();
@@ -46,7 +47,7 @@ class Map{
         // Getters
         int get_width();
         int get_height();
-        std::vector<std::vector<Cell>> get_cells();
+        vector<vector<Cell>> get_cells();
         Cell get_cell(int x, int y);
 
         // Setters
