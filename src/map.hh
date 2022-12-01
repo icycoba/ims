@@ -55,5 +55,6 @@ class Map{
         void set_cells(vector<vector<Cell>> cells);
 
         // Methods
-        void print_map();
+        void print_map(int *argc, char **argv);
 };
+

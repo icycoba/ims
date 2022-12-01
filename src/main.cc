@@ -10,23 +10,6 @@
 
 #include "main.hh"
 
-#include <iostream>
-#include <GL/glut.h>
-
-
-void displayMe(void)
-{
-    glClear(GL_COLOR_BUFFER_BIT);
-    glBegin(GL_POLYGON);
-    glVertex3f(0.5, 0.0, 0.5);
-    glVertex3f(0.5, 0.0, 0.0);
-    glVertex3f(0.0, 0.5, 0.0);
-    glVertex3f(0.0, 0.0, 0.5);
-    glEnd();
-    glFlush();
-}
-
-
 int main(int argc, char **argv){
     
     Map map = Map();
@@ -54,13 +37,7 @@ int main(int argc, char **argv){
         std::cout << "\t\tWidth and height must be greater than 0" << std::endl;
     }
 
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE);
-    glutInitWindowSize(map.get_width(), map.get_height());
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("CrackSim ;)");
-    glutDisplayFunc(displayMe);
-    glutMainLoop();
+    map.print_map(&argc, argv);
     return 0;
 }
 

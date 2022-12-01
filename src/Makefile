@@ -4,14 +4,14 @@ LIBS=-lglut -lGLU -lGL
 
 all: cracksim
 
-cracksim: map.o cell.o main.o 
-	$(CXX) $(CXXFLAGS) main.o cell.o map.o -o cracksim $(LIBS)
+cracksim: cell.o map.o main.o 
+	$(CXX) $(CXXFLAGS) main.o cell.o map.o -o cracksim  $(LIBS)
 
 main.o: main.cc main.hh cell.hh
 	$(CXX) $(CXXFLAGS) -c main.cc
 
 map.o: map.cc map.hh
-	$(CXX) $(CXXFLAGS) -c map.cc
+	$(CXX) $(CXXFLAGS) -c map.cc $(LIBS)
 
 cell.o: cell.cc cell.hh
 	$(CXX) $(CXXFLAGS) -c cell.cc
