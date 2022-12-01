@@ -12,12 +12,28 @@
 
 #include <vector>
 
+enum class MaterialType{
+    Mud,
+    Concrete,
+    Glaze,
+    Ceramic,
+    Glass,
+    Stone,
+    Metal,
+    Wood,
+    Ice
+};
+
 class Map{
     private:
-        // Map size
+        // Map parameters
         // Should it be unsigned? Will it even be necessary? TODO -xhlins01
         unsigned int width;
         unsigned int height;
+
+        // Map material
+        int elasticityLoop;
+        float elasticitySharing;
 
         // Map cells
         std::vector<std::vector<Cell>> cells;
@@ -31,6 +47,7 @@ class Map{
         int get_width();
         int get_height();
         std::vector<std::vector<Cell>> get_cells();
+        Cell get_cell(int x, int y);
 
         // Setters
         void set_width(int width);
@@ -38,6 +55,5 @@ class Map{
         void set_cells(std::vector<std::vector<Cell>> cells);
 
         // Methods
-        void generate_map();
         void print_map();
 };

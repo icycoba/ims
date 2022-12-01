@@ -15,7 +15,7 @@ Map::Map(){
     this->height = 100;
 }
 
-Map::Map(int width, int height){
+Map::Map(unsigned int width, unsigned int height){
     this->width = width;
     this->height = height;
 }
@@ -39,4 +39,3 @@ void Map::set_width(int width){
 void Map::set_height(int height){
     this->height = height;
 }
-
