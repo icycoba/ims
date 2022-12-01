@@ -9,6 +9,7 @@
  */
 
 #include "cell.hh"
+#include "map.hh"
 
 #include <iostream>
-#include <vector>
+#include <string>

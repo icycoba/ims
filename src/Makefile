@@ -13,4 +13,4 @@ cell.o: cell.cc cell.hh
 	$(CXX) $(CXXFLAGS) -c cell.cc
 
 clean:
-	rm -f *.o main
+	rm -f *.o cracksim
