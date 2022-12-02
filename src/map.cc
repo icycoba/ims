@@ -28,8 +28,18 @@ struct neighbourhood
 #define WHITE 0xffffffff
 #define RED 0xff0000ff
 
+#define TOP x, y - 1
+#define TOP_RIGHT x + 1, y - 1
+#define TOP_LEFT x - 1, y - 1
+#define BOTTOM x, y + 1
+#define BOTTOM_RIGHT x + 1, y + 1
+#define BOTTOM_LEFT x - 1, y + 1
+#define RIGHT x + 1, y
+#define LEFT x - 1, y
+
 Uint32 *get_pixel(SDL_Surface *surface, int x, int y)
 {
+    // this was find on the internet, i have no idea how it works but it does
     return (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel);
 }
 
@@ -47,14 +57,14 @@ bool is_set(Uint32 *pixel)
 neighbourhood create_moore(SDL_Surface *surface, int x, int y)
 {
     neighbourhood result;
-    result.top          = is_set(get_pixel(surface, x, y - 1));
-    result.top_right    = is_set(get_pixel(surface, x + 1, y - 1));
-    result.top_left     = is_set(get_pixel(surface, x - 1, y - 1));
-    result.right        = is_set(get_pixel(surface, x + 1, y));
-    result.bottom_right = is_set(get_pixel(surface, x + 1, y + 1));
-    result.bottom       = is_set(get_pixel(surface, x, y + 1));
-    result.bottom_left  = is_set(get_pixel(surface, x - 1, y + 1));
-    result.left         = is_set(get_pixel(surface, x - 1, y));
+    result.top          = is_set(get_pixel(surface, TOP));
+    result.top_right    = is_set(get_pixel(surface, TOP_RIGHT));
+    result.top_left     = is_set(get_pixel(surface, TOP_LEFT));
+    result.right        = is_set(get_pixel(surface, RIGHT));
+    result.bottom_right = is_set(get_pixel(surface, BOTTOM_RIGHT));
+    result.bottom       = is_set(get_pixel(surface, BOTTOM));
+    result.bottom_left  = is_set(get_pixel(surface, BOTTOM_LEFT));
+    result.left         = is_set(get_pixel(surface, LEFT));
     return result;
 }
 
@@ -62,27 +72,27 @@ void apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y)
 {
     if(n.top_right || n.bottom_right || n.bottom_left || n.top_left){
         if (n.top_right && ! n.bottom_left){
-            set_pixel(new_surface, x - 1, y + 1, WHITE);
+            set_pixel(new_surface, BOTTOM_LEFT, WHITE);
         }
         if (n.top_left && !n.bottom_right)
         {
-            set_pixel(new_surface, x + 1, y + 1, WHITE);
+            set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
         }
 
         if (!n.top_left && n.bottom_right)
         {
-            set_pixel(new_surface, x - 1, y - 1, WHITE);
+            set_pixel(new_surface, TOP_LEFT, WHITE);
         }
         if (!n.top_right && n.bottom_left)
         {
-            set_pixel(new_surface, x + 1, y - 1, WHITE);
+            set_pixel(new_surface, TOP_RIGHT, WHITE);
         }
     }
     else{
-        set_pixel(new_surface, x - 1, y - 1, WHITE);
-        set_pixel(new_surface, x + 1, y - 1, WHITE);
-        set_pixel(new_surface, x - 1, y + 1, WHITE);
-        set_pixel(new_surface, x + 1, y + 1, WHITE);
+        set_pixel(new_surface, TOP_LEFT, WHITE);
+        set_pixel(new_surface, TOP_RIGHT, WHITE);
+        set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
+        set_pixel(new_surface, BOTTOM_LEFT, WHITE);
     }
 }
 
@@ -204,7 +214,7 @@ void Map::set_height(unsigned int height){
     this->height = height;
 }
 
-void Map::print_map(int *argc, char **argv)
+void Map::print_map()
 {
     sdl_window_create();
 }

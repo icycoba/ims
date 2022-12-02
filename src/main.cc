@@ -37,7 +37,7 @@ int main(int argc, char **argv){
         std::cout << "\t\tWidth and height must be greater than 0" << std::endl;
     }
 
-    map.print_map(&argc, argv);
+    map.print_map();
     return 0;
 }
 
