@@ -13,6 +13,17 @@
 
 #include <SDL2/SDL.h>
 
+struct neighbourhood
+{
+    bool top_left = false;
+    bool top = false;
+    bool top_right = false;
+    bool left = false;
+    bool bottom_left = false;
+    bool bottom = false;
+    bool bottom_right = false;
+    bool right = false;
+};
 
 #define WHITE 0xffffffff
 #define RED 0xff0000ff
@@ -31,6 +42,72 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 bool is_set(Uint32 *pixel)
 {
     return *pixel == WHITE;
+}
+
+neighbourhood create_moore(SDL_Surface *surface, int x, int y)
+{
+    neighbourhood result;
+    result.top          = is_set(get_pixel(surface, x, y - 1));
+    result.top_right    = is_set(get_pixel(surface, x + 1, y - 1));
+    result.top_left     = is_set(get_pixel(surface, x - 1, y - 1));
+    result.right        = is_set(get_pixel(surface, x + 1, y));
+    result.bottom_right = is_set(get_pixel(surface, x + 1, y + 1));
+    result.bottom       = is_set(get_pixel(surface, x, y + 1));
+    result.bottom_left  = is_set(get_pixel(surface, x - 1, y + 1));
+    result.left         = is_set(get_pixel(surface, x - 1, y));
+    return result;
+}
+
+void apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y)
+{
+    if(n.top_right || n.bottom_right || n.bottom_left || n.top_left){
+        if (n.top_right && ! n.bottom_left){
+            set_pixel(new_surface, x - 1, y + 1, WHITE);
+        }
+        if (n.top_left && !n.bottom_right)
+        {
+            set_pixel(new_surface, x + 1, y + 1, WHITE);
+        }
+
+        if (!n.top_left && n.bottom_right)
+        {
+            set_pixel(new_surface, x - 1, y - 1, WHITE);
+        }
+        if (!n.top_right && n.bottom_left)
+        {
+            set_pixel(new_surface, x + 1, y - 1, WHITE);
+        }
+    }
+    else{
+        set_pixel(new_surface, x - 1, y - 1, WHITE);
+        set_pixel(new_surface, x + 1, y - 1, WHITE);
+        set_pixel(new_surface, x - 1, y + 1, WHITE);
+        set_pixel(new_surface, x + 1, y + 1, WHITE);
+    }
+}
+
+void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
+{
+    if (old_surface == NULL){
+        cerr << "DumB" << endl;
+        return;
+    }
+    SDL_BlitSurface(old_surface, NULL, new_surface, NULL);
+    if (new_surface == NULL){
+        cerr << "dumb" << endl;
+        return;
+    }
+    int w_max = (old_surface->w) - 1;
+    int h_max = (old_surface->h) - 1;
+    for (int x = 1; x < w_max; x++)
+    {
+        for (int y = 1; y < h_max; y++){
+            if (is_set(get_pixel(old_surface, x, y))){
+                neighbourhood moore = create_moore(old_surface, x, y);
+                apply_rule(moore, new_surface, x, y);
+            }
+        }
+    }
 }
 
 void run_window(SDL_Window *window) {
@@ -55,6 +132,8 @@ void run_window(SDL_Window *window) {
                 set_pixel(window_surf, x, y, WHITE);
             }
         }
+        scan_window(window_surf, new_surf);
+        SDL_BlitSurface(new_surf, NULL, window_surf, NULL);
         SDL_UpdateWindowSurface(window);
         //SDL_Delay(1000);
     }
