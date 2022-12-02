@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS=-g -Wall -Wextra -std=c++17
-LIBS=-lglut -lGLU -lGL
+LIBS=-lSDL2 
 
 all: cracksim
 

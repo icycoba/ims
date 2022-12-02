@@ -10,7 +10,40 @@
 
 #include "map.hh"
 #include <iostream>
-#include <GL/glut.h>
+
+#include <SDL2/SDL.h>
+
+void run_window(SDL_Window *window) {
+    
+}
+
+void sdl_window_create(){
+    SDL_Window *window = nullptr;
+
+    if (SDL_Init(SDL_INIT_VIDEO)<0){
+        cout << "Could not initialize video: " << SDL_GetError() << endl;
+    }
+    else
+    {
+        window = SDL_CreateWindow(
+            "CrackSim ;)))",
+            SDL_WINDOWPOS_CENTERED, 
+            SDL_WINDOWPOS_CENTERED, 
+            1000, 
+            700, 
+            SDL_WINDOW_SHOWN
+        );
+        if (window == NULL){
+            cout << "Could not create window: " << SDL_GetError() << endl;
+        }
+        else
+        {
+            run_window(window);
+        }
+    }
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
 
 Map::Map(){
     this->width = 100;
@@ -45,24 +78,8 @@ void Map::set_width(unsigned int width){
 void Map::set_height(unsigned int height){
     this->height = height;
 }
-void show_map(){
-    glClear(GL_COLOR_BUFFER_BIT);
-    glBegin(GL_POLYGON);
-    glVertex3f(0.5, 0.0, 0.5);
-    glVertex3f(0.5, 0.0, 0.0);
-    glVertex3f(0.0, 0.5, 0.0);
-    glVertex3f(0.0, 0.0, 0.5);
-    glEnd();
-    glFlush();
-}
 
 void Map::print_map(int *argc, char **argv)
 {
-    glutInit(argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE);
-    glutInitWindowSize(this->get_width(), this->get_height());
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("CrackSim ;)");
-    glutDisplayFunc(show_map);
-    glutMainLoop();
+    sdl_window_create();
 }
