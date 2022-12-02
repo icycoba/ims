@@ -13,6 +13,26 @@
 
 #include <SDL2/SDL.h>
 
+
+#define WHITE 0xffffffff
+#define RED 0xff0000ff
+
+Uint32 *get_pixel(SDL_Surface *surface, int x, int y)
+{
+    return (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel);
+}
+
+void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
+{
+    Uint32 *const target_pixel = get_pixel(surface, x, y);
+    *target_pixel = pixel;
+}
+
+bool is_set(Uint32 *pixel)
+{
+    return *pixel == WHITE;
+}
+
 void run_window(SDL_Window *window) {
     
 }
