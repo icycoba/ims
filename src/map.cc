@@ -35,6 +35,32 @@ bool is_set(Uint32 *pixel)
 
 void run_window(SDL_Window *window) {
     
+    bool is_running = true;
+
+    SDL_Surface *window_surf = SDL_GetWindowSurface(window);
+    SDL_Surface *new_surf = SDL_CreateRGBSurface(0, window_surf->w, window_surf->h, 32, 0, 0, 0, 0);
+    SDL_Event ev;
+
+    while (is_running)
+    {
+        while (SDL_PollEvent(&ev) != 0)
+        {
+            if (ev.type == SDL_QUIT)
+                is_running = false;
+            else if (ev.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                cout << "x: " << x << "\t y: " << y << endl;
+                set_pixel(window_surf, x, y, WHITE);
+            }
+        }
+        SDL_UpdateWindowSurface(window);
+        //SDL_Delay(1000);
+    }
+
+    SDL_FreeSurface(window_surf);
+    SDL_FreeSurface(new_surf);
 }
 
 void sdl_window_create(){
