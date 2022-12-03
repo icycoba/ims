@@ -10,9 +10,16 @@
 
 #include "main.hh"
 
+#define W_WIDTH 1000
+#define W_HEIGHT 720
+
+#define M_TOLERANCE 
+
 int main(int argc, char **argv){
-    
-    Map map = Map();
+
+    srand(time(nullptr));
+
+    Map map = Map(W_WIDTH/8, W_HEIGHT/8);
 
     std::vector <std::string> args(argv, argv+argc);
     if(args.size() > 1){

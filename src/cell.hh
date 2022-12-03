@@ -9,13 +9,19 @@
  */
 
 #include <vector>
+#include <random>
 
 using namespace std;
+
+#define MATERIAL_TOLERANCE 14
+#define MATERIAL_ELASTICITY_LOOP 5
+#define MATERIAL_ELASTICITY_SHARING 0.1
 
 /**
  * @brief Stav buňky
  */
 enum class CellState{
+    Default, 
     Intact, // Crack not ran through by crack
     Cracked // Crack runs through the cell
 };
@@ -30,19 +36,19 @@ class Cell{
         CellState state; // Intact, Cracked
 
         // Cell stress spectrum
-        vector<int> stressSpectrum; // (RIGHT, TOP_RIGHT, TOP, TOP_LEFT). Values are mirrored in the opposite direction
+        vector<double> stressSpectrum; // (RIGHT, TOP_RIGHT, TOP, TOP_LEFT). Values are mirrored in the opposite direction
     public:
         // Constructor/destructor
         Cell();
+        Cell(unsigned int i, unsigned int j, vector<double> stressSpectrum);
         ~Cell();
 
         // Getters
         pair<int, int> get_coordinates();
         CellState get_state();
+        vector<double> get_stress_spectrum();
 
         // Setters
-        void set_x(int x);
-        void set_y(int y);
         void set_coordinates(int x, int y);
         void set_state(CellState state);
 };
