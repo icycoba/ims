@@ -20,8 +20,8 @@ Cell::Cell(){
 }
 Cell::Cell(unsigned int i, unsigned int j, vector<double> stressSpectrum)
 {
-    this->x = i*8;
-    this->y = j*8;
+    this->x = i;
+    this->y = j;
     this->state = CellState::Default;
     this->stressSpectrum = stressSpectrum;
 }

@@ -10,7 +10,26 @@
 
 #include "cell.hh"
 
+#include <iostream>
 #include <ctime>
+
+#define SDL_MAIN_HANDLED 
+#include <SDL2/SDL.h>
+
+#define W_WIDTH 1000
+#define W_HEIGHT 720
+
+struct neighbourhood
+{
+    bool top_left = false;
+    bool top = false;
+    bool top_right = false;
+    bool left = false;
+    bool bottom_left = false;
+    bool bottom = false;
+    bool bottom_right = false;
+    bool right = false;
+};
 
 class Map{
     private:
@@ -46,4 +65,11 @@ class Map{
 
         // Methods
         void print_map();
+
+        neighbourhood create_moore(SDL_Surface *surface, int x, int y);
+        void apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y);
+        void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface);
+        void generate_starting_points(SDL_Surface *window_surf);
+        void run_window(SDL_Window *window);
+        void sdl_window_create();
         };
