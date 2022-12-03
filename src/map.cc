@@ -121,15 +121,24 @@ void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
 }
 
 void run_window(SDL_Window *window) {
-    
+    srand(time(nullptr));
     bool is_running = true;
 
     SDL_Surface *window_surf = SDL_GetWindowSurface(window);
     SDL_Surface *new_surf = SDL_CreateRGBSurface(0, window_surf->w, window_surf->h, 32, 0, 0, 0, 0);
     SDL_Event ev;
 
+    // prasácký statický int, aby se nám nezacyklil randomizer
+    static int i = 0;
     while (is_running)
     {
+        // prasácký cyklus, který vygeneruje random 10 bodů, kde začínají praskliny
+        for(; i < 10; i++){
+            int x = rand() % window_surf->w;
+            int y = rand() % window_surf->h;
+            set_pixel(window_surf, x, y, WHITE);
+            cout << "x: " << x << " y: " << y << endl;
+        }
         while (SDL_PollEvent(&ev) != 0)
         {
             if (ev.type == SDL_QUIT)

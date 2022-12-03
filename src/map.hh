@@ -9,9 +9,8 @@
  */
 
 #include "cell.hh"
-using namespace std;
 
-#include <vector>
+#include <ctime>
 
 enum class MaterialType{
     Mud,

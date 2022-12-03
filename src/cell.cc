@@ -13,22 +13,19 @@
 Cell::Cell(){
     this->x = 0;
     this->y = 0;
-    this->state = 0;
+    this->state = CellState::Intact;
+    this->stressSpectrum = {0, 0, 0, 0};
 }
 
 Cell::~Cell(){
     
 }
 
-int Cell::get_x(){
-    return this->x;
+pair<int, int> Cell::get_coordinates(){
+    return make_pair(this->x, this->y);
 }
 
-int Cell::get_y(){
-    return this->y;
-}
-
-int Cell::get_state(){
+CellState Cell::get_state(){
     return this->state;
 }
 
@@ -40,6 +37,11 @@ void Cell::set_y(int y){
     this->y = y;
 }
 
-void Cell::set_state(int state){
+void Cell::set_coordinates(int x, int y){
+    this->x = x;
+    this->y = y;
+}
+
+void Cell::set_state(CellState state){
     this->state = state;
 }
