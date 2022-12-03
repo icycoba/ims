@@ -198,11 +198,16 @@ void sdl_window_create(){
 Map::Map(unsigned int width, unsigned int height){
     this->width = width;
     this->height = height;
-    this->set_cells();
+
+    this->cells = allocate_cells();
+
+    this->next_cells = allocate_cells();
+    this->copy_cells(this->cells, this->next_cells);
 }
 
 Map::~Map(){
-
+    this->free_cells(this->cells);
+    this->free_cells(this->next_cells);
 }
 
 unsigned int Map::get_width(){
@@ -213,7 +218,7 @@ unsigned int Map::get_height(){
     return this->height;
 }
 
-std::vector<std::vector<Cell>> Map::get_cells(){
+Cell *** Map::get_cells(){
     return this->cells;
 }
 
@@ -228,4 +233,44 @@ void Map::set_height(unsigned int height){
 void Map::print_map()
 {
     sdl_window_create();
+}
+
+Cell *** Map::allocate_cells()
+{
+    Cell *** result = new Cell **[this->height];
+
+    for (unsigned int i = 0; i < this->height; i++)
+    {
+        Cell **row = new Cell*[this->width];
+        result[i] = row;
+        for (unsigned int j = 0; j < this->width; j++)
+        {
+            result[i][j] = new Cell(i, j);
+        }
+    }
+    return result;
+}
+
+void Map::free_cells(Cell ***cells)
+{
+    for (unsigned int i = 0; i < this->height; i++)
+    {
+        for (unsigned int j = 0; j < this->width; j++)
+        {
+            delete cells[i][j];
+        }
+        delete cells[i];
+    }
+    delete cells;
+}
+
+void Map::copy_cells(Cell *** src, Cell *** dst)
+{
+    for (unsigned int i = 0; i < this->height; i++)
+    {
+        for (unsigned int j = 0; j < this->width; j++)
+        {
+            *dst[i][j] = *src[i][j];
+        }
+    }
 }
