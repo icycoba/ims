@@ -1,3 +1,4 @@
 *.o
 cracksim
 .vscode
+*.exe

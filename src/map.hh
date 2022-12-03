@@ -12,18 +12,6 @@
 
 #include <ctime>
 
-enum class MaterialType{
-    Mud,
-    Concrete,
-    Glaze,
-    Ceramic,
-    Glass,
-    Stone,
-    Metal,
-    Wood,
-    Ice
-};
-
 class Map{
     private:
         // Map parameters
