@@ -50,14 +50,36 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
     *target_pixel = pixel;
 }
 
+
 bool is_set(Uint32 *pixel)
 {
     return *pixel == WHITE;
 }
 
-neighbourhood create_moore(SDL_Surface *surface, int x, int y)
+
+/*bool is_set(Cell *** cells, int x, int y){
+    return cells[x][y]->get_state() == CellState::Intact;
+}*/
+
+neighbourhood create_moore(SDL_Surface *surface, int x, int y, Map *map)
 {
     neighbourhood result;
+    
+    Cell *** cells = map->get_cells();
+    cout << (cells[216][125]->get_state() == CellState::Default) << endl;
+
+    cout << "x: " << x << " y: " << y << endl;
+    cout << (cells[x/8][y/8]->get_state() == CellState::Default) << endl;
+
+    // result.top              = map->get_cells()[(x)/8][(y-1)/8]->get_state() == CellState::Default;
+    // result.top_right        = map->get_cells()[(x+1)/8][(y-1)/8]->get_state() == CellState::Default;
+    // result.top_left         = map->get_cells()[(x-1)/8][(y-1)/8]->get_state() == CellState::Default;
+    // result.right            = map->get_cells()[(x+1)/8][(y)/8]->get_state() == CellState::Default;
+    // result.bottom_right     = map->get_cells()[(x+1)/8][(y+1)/8]->get_state() == CellState::Default;
+    // result.bottom           = map->get_cells()[(x)/8][(y+1)/8]->get_state() == CellState::Default;
+    // result.bottom_left      = map->get_cells()[(x-1)/8][(y+1)/8]->get_state() == CellState::Default;
+    // result.left             = map->get_cells()[(x-1)/8][(y)/8]->get_state() == CellState::Default;
+    
     result.top          = is_set(get_pixel(surface, TOP));
     result.top_right    = is_set(get_pixel(surface, TOP_RIGHT));
     result.top_left     = is_set(get_pixel(surface, TOP_LEFT));
@@ -66,6 +88,23 @@ neighbourhood create_moore(SDL_Surface *surface, int x, int y)
     result.bottom       = is_set(get_pixel(surface, BOTTOM));
     result.bottom_left  = is_set(get_pixel(surface, BOTTOM_LEFT));
     result.left         = is_set(get_pixel(surface, LEFT));
+
+
+    // if(map->get_cells()[x/8][y/8]->get_state() == CellState::Cracked){
+    //     cout << "dong" << endl;
+    // } else {
+    //     cout << "dang" << endl;
+    // }
+
+
+    //result.top          = map->get_cell(TOP).get_state() == CellState::Default;
+    //result.top_right    = map->get_cell(TOP_RIGHT).get_state() == CellState::Default;
+    //result.top_left     = map->get_cell(TOP_LEFT).get_state() == CellState::Default;
+    //result.right        = map->get_cell(RIGHT).get_state() == CellState::Default;
+    //result.bottom_right = map->get_cell(BOTTOM_RIGHT).get_state() == CellState::Default;
+    //result.bottom       = map->get_cell(BOTTOM).get_state() == CellState::Default;
+    //result.bottom_left  = map->get_cell(BOTTOM_LEFT).get_state() == CellState::Default;
+    //result.left         = map->get_cell(LEFT).get_state() == CellState::Default;
     return result;
 }
 
@@ -97,7 +136,7 @@ void apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y)
     }
 }
 
-void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
+void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface, Map *map)
 {
     if (old_surface == NULL){
         cerr << "DumB" << endl;
@@ -114,7 +153,7 @@ void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
     {
         for (int y = 1; y < h_max; y++){
             if (is_set(get_pixel(old_surface, x, y))){
-                neighbourhood moore = create_moore(old_surface, x, y);
+                neighbourhood moore = create_moore(old_surface, x, y, map);
                 apply_rule(moore, new_surface, x, y);
             }
         }
@@ -134,7 +173,7 @@ void generate_starting_points(SDL_Surface *window_surf){
     }
 }
 
-void run_window(SDL_Window *window) {
+void run_window(SDL_Window *window, Map *map) {
     
     bool is_running = true;
 
@@ -157,7 +196,7 @@ void run_window(SDL_Window *window) {
                 set_pixel(window_surf, x, y, WHITE);
             }
         }
-        scan_window(window_surf, new_surf);
+        scan_window(window_surf, new_surf, map);
         SDL_BlitSurface(new_surf, NULL, window_surf, NULL);
         SDL_UpdateWindowSurface(window);
         //SDL_Delay(1000);
@@ -167,7 +206,7 @@ void run_window(SDL_Window *window) {
     SDL_FreeSurface(new_surf);
 }
 
-void sdl_window_create(){
+void sdl_window_create(Map *map){
     SDL_Window *window = nullptr;
 
     if (SDL_Init(SDL_INIT_VIDEO)<0){
@@ -188,7 +227,7 @@ void sdl_window_create(){
         }
         else
         {
-            run_window(window);
+            run_window(window, map);
         }
     }
     SDL_DestroyWindow(window);
@@ -222,6 +261,11 @@ Cell *** Map::get_cells(){
     return this->cells;
 }
 
+/*Cell Map::get_cell(int x, int y){
+    cout << "xxx: " << x << " yyy: " << y << endl;
+    return this->cells[x][y][0];
+}*/
+
 void Map::set_width(unsigned int width){
     this->width = width;
 }
@@ -232,7 +276,7 @@ void Map::set_height(unsigned int height){
 
 void Map::print_map()
 {
-    sdl_window_create();
+    sdl_window_create(this);
 }
 
 Cell *** Map::allocate_cells()
