@@ -1,5 +1,5 @@
 /**
- * @file main.hh
+ * @file map.hh
  * @author Martin Hlinský (xhlins01)
  * @author Dziyana Khrystsiuk (xkhrys00)
  * 
@@ -9,6 +9,7 @@
  */
 
 #include "cell.hh"
+using namespace std;
 
 #include <vector>
 
@@ -27,7 +28,6 @@ enum class MaterialType{
 class Map{
     private:
         // Map parameters
-        // Should it be unsigned? Will it even be necessary? TODO -xhlins01
         unsigned int width;
         unsigned int height;
 
@@ -36,7 +36,7 @@ class Map{
         float elasticitySharing;
 
         // Map cells
-        std::vector<std::vector<Cell>> cells;
+        vector<vector<Cell>> cells;
     public:
         // Constructor/destructor
         Map();
@@ -44,16 +44,16 @@ class Map{
         ~Map();
 
         // Getters
-        int get_width();
-        int get_height();
-        std::vector<std::vector<Cell>> get_cells();
+        unsigned int get_width();
+        unsigned int get_height();
+        vector<vector<Cell>> get_cells();
         Cell get_cell(int x, int y);
 
         // Setters
-        void set_width(int width);
-        void set_height(int height);
-        void set_cells(std::vector<std::vector<Cell>> cells);
+        void set_width(unsigned int width);
+        void set_height(unsigned int height);
+        void set_cells(vector<vector<Cell>> cells);
 
         // Methods
         void print_map();
-};
+        };
