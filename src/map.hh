@@ -10,8 +10,6 @@
 
 #include "cell.hh"
 
-#include <ctime>
-
 enum class MaterialType{
     Mud,
     Concrete,
@@ -38,7 +36,6 @@ class Map{
         vector<vector<Cell>> cells;
     public:
         // Constructor/destructor
-        Map();
         Map(unsigned int width, unsigned int height);
         ~Map();
 

@@ -16,6 +16,7 @@ using namespace std;
  * @brief Stav buňky
  */
 enum class CellState{
+    Default, 
     Intact, // Crack not ran through by crack
     Cracked // Crack runs through the cell
 };
@@ -34,6 +35,7 @@ class Cell{
     public:
         // Constructor/destructor
         Cell();
+        Cell(unsigned int i, unsigned int j);
         ~Cell();
 
         // Getters
@@ -41,8 +43,6 @@ class Cell{
         CellState get_state();
 
         // Setters
-        void set_x(int x);
-        void set_y(int y);
         void set_coordinates(int x, int y);
         void set_state(CellState state);
 };

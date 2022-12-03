@@ -9,12 +9,24 @@
  */
 
 #include "cell.hh"
+#include <ctime>
+#include <stdlib.h>
 
+vector<int> generate_stress(){
+    return {rand(), rand(), rand(), rand()};
+}
 Cell::Cell(){
     this->x = 0;
     this->y = 0;
     this->state = CellState::Intact;
     this->stressSpectrum = {0, 0, 0, 0};
+}
+Cell::Cell(unsigned int i, unsigned int j)
+{
+    this->x = i*8;
+    this->y = j*8;
+    this->state = CellState::Default;
+    this->stressSpectrum = generate_stress();
 }
 
 Cell::~Cell(){
@@ -27,14 +39,6 @@ pair<int, int> Cell::get_coordinates(){
 
 CellState Cell::get_state(){
     return this->state;
-}
-
-void Cell::set_x(int x){
-    this->x = x;
-}
-
-void Cell::set_y(int y){
-    this->y = y;
 }
 
 void Cell::set_coordinates(int x, int y){

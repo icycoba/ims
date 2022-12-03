@@ -2,15 +2,16 @@ ifeq ($(OS),Windows_NT)
 # Windows
 # Path: src\Makefile
 	DEL := del *.o *.exe
+	LIBS :=-ID:\SDL2\i686-w64-mingw32\include -LD:\SDL2\i686-w64-mingw32\lib
 else 
 # Linux
 # Path: src/Makefile
 	DEL := rm -f *.o cracksim
+	LIBS=-lSDL2
 endif
 
 CXX=g++
 CXXFLAGS=-g -Wall -Wextra -std=c++17
-LIBS=-ID:\SDL2\i686-w64-mingw32\include -LD:\SDL2\i686-w64-mingw32\lib -lSDL2
 
 all: cracksim
 

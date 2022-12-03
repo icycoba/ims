@@ -10,6 +10,7 @@
 
 #include "map.hh"
 #include <iostream>
+#include <ctime>
 
 #include <SDL2/SDL.h>
 
@@ -120,25 +121,30 @@ void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
     }
 }
 
+void generate_starting_points(SDL_Surface *window_surf){
+    // prasácký statický int, aby se nám nezacyklil randomizer
+    static int i = 0;
+    // prasácký cyklus, který vygeneruje random 10 bodů, kde začínají praskliny
+    for (; i < 10; i++)
+    {
+        int x = rand() % window_surf->w;
+        int y = rand() % window_surf->h;
+        set_pixel(window_surf, x, y, WHITE);
+        cout << "x: " << x << " y: " << y << endl;
+    }
+}
+
 void run_window(SDL_Window *window) {
-    srand(time(nullptr));
+    
     bool is_running = true;
 
     SDL_Surface *window_surf = SDL_GetWindowSurface(window);
     SDL_Surface *new_surf = SDL_CreateRGBSurface(0, window_surf->w, window_surf->h, 32, 0, 0, 0, 0);
     SDL_Event ev;
 
-    // prasácký statický int, aby se nám nezacyklil randomizer
-    static int i = 0;
     while (is_running)
     {
-        // prasácký cyklus, který vygeneruje random 10 bodů, kde začínají praskliny
-        for(; i < 10; i++){
-            int x = rand() % window_surf->w;
-            int y = rand() % window_surf->h;
-            set_pixel(window_surf, x, y, WHITE);
-            cout << "x: " << x << " y: " << y << endl;
-        }
+        generate_starting_points(window_surf);
         while (SDL_PollEvent(&ev) != 0)
         {
             if (ev.type == SDL_QUIT)
@@ -189,14 +195,10 @@ void sdl_window_create(){
     SDL_Quit();
 }
 
-Map::Map(){
-    this->width = 100;
-    this->height = 100;
-}
-
 Map::Map(unsigned int width, unsigned int height){
     this->width = width;
     this->height = height;
+    this->set_cells();
 }
 
 Map::~Map(){
