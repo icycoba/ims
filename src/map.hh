@@ -23,7 +23,9 @@ class Map{
         float elasticitySharing;
 
         // Map cells
-        vector<vector<Cell>> cells;
+        Cell *** cells;
+        Cell *** next_cells;
+
     public:
         // Constructor/destructor
         Map(unsigned int width, unsigned int height);
@@ -32,13 +34,15 @@ class Map{
         // Getters
         unsigned int get_width();
         unsigned int get_height();
-        vector<vector<Cell>> get_cells();
+        Cell *** get_cells();
         Cell get_cell(int x, int y);
 
         // Setters
         void set_width(unsigned int width);
         void set_height(unsigned int height);
-        void set_cells(vector<vector<Cell>> cells);
+        void copy_cells(Cell *** src, Cell *** dst);
+        Cell *** allocate_cells();
+        void free_cells(Cell *** cells);
 
         // Methods
         void print_map();

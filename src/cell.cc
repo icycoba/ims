@@ -12,22 +12,16 @@
 #include <ctime>
 #include <stdlib.h>
 
-/*
-vector<double> generate_stress(){
-    
-
-    return ;
-}
-*/
 Cell::Cell(){
     this->x = 0;
     this->y = 0;
     this->state = CellState::Intact;
     this->stressSpectrum = {0, 0, 0, 0};
 }
-Cell::Cell(unsigned int i, unsigned int j, vector<double> stressSpectrum){
-    this->x = i;
-    this->y = j;
+Cell::Cell(unsigned int i, unsigned int j, vector<double> stressSpectrum)
+{
+    this->x = i*8;
+    this->y = j*8;
     this->state = CellState::Default;
     this->stressSpectrum = stressSpectrum;
 }

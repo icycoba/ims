@@ -198,24 +198,16 @@ void sdl_window_create(){
 Map::Map(unsigned int width, unsigned int height){
     this->width = width;
     this->height = height;
-    default_random_engine generator;
-    normal_distribution<double> distribution(MATERIAL_TOLERANCE / 2, (MATERIAL_TOLERANCE / 4) + 2 );
-    //this->set_cells();
-    for(unsigned int i = 0; i < width; i++){
-        for(unsigned int j = 0; j < height; j++){
-            Cell cell = Cell(i, j, {abs(distribution(generator)), abs(distribution(generator)), abs(distribution(generator)), abs(distribution(generator))});
-            int ssindex = 0;
-            for (double stressSpectrum : cell.get_stress_spectrum()){
-                cout << ssindex << ": " << stressSpectrum << endl;
-                ssindex++;
-            }
-            cout << endl;
-        }
-    }
+
+    this->cells = allocate_cells();
+
+    this->next_cells = allocate_cells();
+    this->copy_cells(this->cells, this->next_cells);
 }
 
 Map::~Map(){
-
+    this->free_cells(this->cells);
+    this->free_cells(this->next_cells);
 }
 
 unsigned int Map::get_width(){
@@ -226,7 +218,7 @@ unsigned int Map::get_height(){
     return this->height;
 }
 
-std::vector<std::vector<Cell>> Map::get_cells(){
+Cell *** Map::get_cells(){
     return this->cells;
 }
 
@@ -241,4 +233,52 @@ void Map::set_height(unsigned int height){
 void Map::print_map()
 {
     sdl_window_create();
+}
+
+Cell *** Map::allocate_cells()
+{
+    default_random_engine generator;
+    normal_distribution<double> distribution(MATERIAL_TOLERANCE / 2, (MATERIAL_TOLERANCE / 4) + 2 );
+
+    Cell *** result = new Cell **[this->height];
+
+    for (unsigned int i = 0; i < this->height; i++)
+    {
+        Cell **row = new Cell*[this->width];
+        result[i] = row;
+        for (unsigned int j = 0; j < this->width; j++)
+        {
+            int ssindex = 0;
+            result[i][j] = new Cell(i, j, {abs(distribution(generator)), abs(distribution(generator)), abs(distribution(generator)), abs(distribution(generator))});
+            //for (double stressSpectrum : result[i][j][0].get_stress_spectrum()){
+            //    cout << ssindex << ": " << stressSpectrum << endl;
+            //    ssindex++;
+            //}
+        }
+    }
+    return result;
+}
+
+void Map::free_cells(Cell ***cells)
+{
+    for (unsigned int i = 0; i < this->height; i++)
+    {
+        for (unsigned int j = 0; j < this->width; j++)
+        {
+            delete cells[i][j];
+        }
+        delete cells[i];
+    }
+    delete cells;
+}
+
+void Map::copy_cells(Cell *** src, Cell *** dst)
+{
+    for (unsigned int i = 0; i < this->height; i++)
+    {
+        for (unsigned int j = 0; j < this->width; j++)
+        {
+            *dst[i][j] = *src[i][j];
+        }
+    }
 }
