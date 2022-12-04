@@ -361,9 +361,9 @@ Cell *** Map::allocate_cells()
 
 void Map::free_cells(Cell ***cells)
 {
-    for (unsigned int i = 0; i < this->height; i++)
+    for (unsigned int i = 0; i < this->width; i++)
     {
-        for (unsigned int j = 0; j < this->width; j++)
+        for (unsigned int j = 0; j < this->height; j++)
         {
             delete cells[i][j];
         }
