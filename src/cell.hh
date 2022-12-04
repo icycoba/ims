@@ -16,6 +16,7 @@ using namespace std;
 #define MATERIAL_TOLERANCE 14
 #define MATERIAL_ELASTICITY_LOOP 5
 #define MATERIAL_ELASTICITY_SHARING 0.1
+#define MATERIAL_ELASTICITY_PERCENTAGE 0.2
 
 /**
  * @brief Stav buňky
@@ -47,8 +48,13 @@ class Cell{
         pair<int, int> get_coordinates();
         CellState get_state();
         vector<double> get_stress_spectrum();
+        double get_stress_avg();
 
         // Setters
         void set_coordinates(int x, int y);
         void set_state(CellState state);
+        void set_stress_spectrum(vector<double> stressSpectrum);
+
+        // Methods
+        int maximum_stress();
 };

@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <unordered_map>
 
 #define SDL_MAIN_HANDLED 
 #include <SDL2/SDL.h>
@@ -62,14 +63,18 @@ class Map{
         void copy_cells(Cell *** src, Cell *** dst);
         Cell *** allocate_cells();
         void free_cells(Cell *** cells);
+        void stress_relaxation();
 
         // Methods
         void print_map();
 
-        neighbourhood create_moore(SDL_Surface *surface, int x, int y);
+        neighbourhood create_moore(int x, int y);
         void apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y);
-        void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface);
+        void scan_window(SDL_Surface *old_surface);
         void generate_starting_points(SDL_Surface *window_surf);
+        vector<pair<Cell*, double>> set_unstable();
         void run_window(SDL_Window *window);
         void sdl_window_create();
+
+        unordered_map<string, Cell*> get_neigh(int x, int y);
         };

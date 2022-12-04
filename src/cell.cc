@@ -42,6 +42,15 @@ vector<double> Cell::get_stress_spectrum(){
     return this->stressSpectrum;
 }
 
+double Cell::get_stress_avg(){
+    double sum = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        sum += this->stressSpectrum[i];
+    }
+    return sum / 4;
+}
+
 void Cell::set_coordinates(int x, int y){
     this->x = x;
     this->y = y;
@@ -49,4 +58,20 @@ void Cell::set_coordinates(int x, int y){
 
 void Cell::set_state(CellState state){
     this->state = state;
+}
+
+void Cell::set_stress_spectrum(vector<double> stressSpectrum){
+    this->stressSpectrum = stressSpectrum;
+}
+
+int Cell::maximum_stress(){
+    int maxIndex = 0;
+    double max = 0;
+    for (int i = 0; i < 4; i++){
+        if (this->stressSpectrum[i] > max){
+            maxIndex = i;
+            max = this->stressSpectrum[i];
+        }
+    }
+    return maxIndex;
 }

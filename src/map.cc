@@ -9,6 +9,7 @@
  */
 
 #include "map.hh"
+#include <algorithm> 
 
 #define WHITE 0xffffffff
 #define RED 0xff0000ff
@@ -50,13 +51,9 @@ bool stress_gt_tolerance(vector<double> stress, int index){
 
 }
 
-neighbourhood Map::create_moore(SDL_Surface *surface, int x, int y)
-{
-    neighbourhood result;
-    
+/*void random_rule(){
     Cell *** cells = this->get_cells();
-
-    vector<double> stress = cells[x][y]->get_stress_spectrum();
+    vector<double> stress = cells[x][y]->get_stress_spectrum();   
 
     if (stress_gt_tolerance(stress,0))
     {
@@ -78,7 +75,12 @@ neighbourhood Map::create_moore(SDL_Surface *surface, int x, int y)
         cells[x+1][y+1]->set_state(CellState::Cracked);
         cells[x-1][y-1]->set_state(CellState::Cracked);
     }
+}*/
 
+neighbourhood Map::create_moore(int x, int y)
+{
+    neighbourhood result;
+    
     /**DEBUG
     if(cells == nullptr){
         cerr << "cells is null" << endl;
@@ -186,17 +188,9 @@ void Map::apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y)
     }
 }
 
-void Map::scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
+void Map::scan_window(SDL_Surface *old_surface)
 {
-    if (old_surface == NULL){
-        cerr << "DumB" << endl;
-        return;
-    }
-    SDL_BlitSurface(old_surface, NULL, new_surface, NULL);
-    if (new_surface == NULL){
-        cerr << "dumb" << endl;
-        return;
-    }
+    
     int w_max = (this->width) - 1;
     int h_max = (this->height) - 1;
     for (int x = 1; x < w_max; x++)
@@ -205,8 +199,8 @@ void Map::scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
             Uint32 *pixel = get_pixel(old_surface, x, y);
             if(pixel != NULL){
                 if (is_set(pixel)){
-                    neighbourhood moore = this->create_moore(old_surface, x, y);
-                    apply_rule(moore, new_surface, x, y);
+                    neighbourhood moore = this->create_moore(x, y);
+                    apply_rule(moore, old_surface, x, y);
                 }
             } else{
                 cerr << "pixel is null" << endl;
@@ -228,14 +222,53 @@ void Map::generate_starting_points(SDL_Surface *window_surf){
     }
 }
 
+bool sortbysec(const pair<Cell*,double> &a, const pair<Cell*,double> &b)
+{
+    return (a.second > b.second);
+}
+
+vector<pair<Cell*, double>> Map::set_unstable(){
+    vector<pair<Cell*, double>> result;
+    for (unsigned int x = 0; x < this->width; x++)
+    {
+        for (unsigned int y = 0; y < this->height; y++)
+        {
+            if (this->cells[x][y]->get_state() != CellState::Cracked){
+                int maxIndex = this->cells[x][y]->maximum_stress();
+                double intensity = this->cells[x][y]->get_stress_spectrum()[maxIndex];
+                if ( intensity > MATERIAL_TOLERANCE){
+                    result.push_back(pair<Cell*,double>(this->cells[x][y], intensity));
+                }
+            }
+            
+        }
+    }
+    return result;
+}
+
+// bool sortbysec(const pair<int,int> &a,
+//     const pair<int,int> &b)
+// {
+//     return (a.second < b.second);
+// }
+
 void Map::run_window(SDL_Window *window) {
     
     bool is_running = true;
 
     SDL_Surface *window_surf = SDL_GetWindowSurface(window);
-    SDL_Surface *new_surf = SDL_CreateRGBSurface(0, window_surf->w, window_surf->h, 32, 0, 0, 0, 0);
     SDL_Event ev;
 
+    vector<pair<Cell*, double>> unstable = this->set_unstable();
+    sort(unstable.begin(), unstable.end(), sortbysec);
+
+    // for (size_t i=0; i<unstable.size(); i++)
+    // {
+    //     // "first" and "second" are used to access
+    //     // 1st and 2nd element of pair respectively
+    //     cout << unstable[i].first << " " << unstable[i].second << endl;
+    // }
+    
     while (is_running)
     {
         //generate_starting_points(window_surf);
@@ -251,14 +284,13 @@ void Map::run_window(SDL_Window *window) {
                 set_pixel(window_surf, x, y, WHITE);
             }
         }
-        this->scan_window(window_surf, new_surf);
-        SDL_BlitSurface(new_surf, NULL, window_surf, NULL);
+
+        this->scan_window(window_surf);
         SDL_UpdateWindowSurface(window);
         //SDL_Delay(1000);
     }
 
     SDL_FreeSurface(window_surf);
-    SDL_FreeSurface(new_surf);
 }
 
 void Map::sdl_window_create(){
@@ -289,6 +321,66 @@ void Map::sdl_window_create(){
     SDL_Quit();
 }
 
+void Map::stress_relaxation(){
+
+    for(unsigned int x = 1; x < this->width-1; x++){
+        for(unsigned int y = 1; y < this->height-1; y++){
+            
+            vector<double> sigma = {0, 0, 0, 0};
+            double my_stress = this->cells[x][y]->get_stress_avg();
+            vector<double> stress_sum = {0,0,0,0};
+
+            unordered_map<string, Cell*> neighs = this->get_neigh(x,y);
+            int infNeighbours = 0;
+
+            for( const pair<const string, Cell*>& n : neighs){
+                if(my_stress > n.second->get_stress_avg()){
+                    stress_sum[0] += n.second->get_stress_spectrum()[0];
+                    stress_sum[1] += n.second->get_stress_spectrum()[1];
+                    stress_sum[2] += n.second->get_stress_spectrum()[2];
+                    stress_sum[3] += n.second->get_stress_spectrum()[3];
+                    infNeighbours++;
+                }
+            }
+            if (infNeighbours == 0){
+                continue;
+            }
+            double norm = (infNeighbours);
+            sigma[0] = 1 - (stress_sum[0]/infNeighbours) * MATERIAL_ELASTICITY_PERCENTAGE;
+            sigma[1] = 1 - (stress_sum[1]/infNeighbours) * MATERIAL_ELASTICITY_PERCENTAGE;
+            sigma[2] = 1 - (stress_sum[2]/infNeighbours) * MATERIAL_ELASTICITY_PERCENTAGE;
+            sigma[3] = 1 - (stress_sum[3]/infNeighbours) * MATERIAL_ELASTICITY_PERCENTAGE;
+
+            std::vector<double> stress_spectrum = this->cells[x][y]->get_stress_spectrum();
+            stress_spectrum[0] += sigma[0];
+            stress_spectrum[1] += sigma[1];
+            stress_spectrum[2] += sigma[2];
+            stress_spectrum[3] += sigma[3];
+            this->next_cells[x][y]->set_stress_spectrum(stress_spectrum);
+            //cout << "=== JOE ===" << endl;
+            //cout << stress_sum[0] << " " << stress_sum[1] << " " << stress_sum[2] << " " << stress_sum[3] << endl;
+            ////cout << norm << endl;
+            //cout << sigma[0] << " " << sigma[1] << " " << sigma[2] << " " << sigma[3] << endl;
+            //cout << "=== COCK ===" << endl;
+        }
+    }
+}
+
+unordered_map<string, Cell*> Map::get_neigh(int x, int y){
+
+    unordered_map<string, Cell*> result;
+
+    result["TOP"] = this->cells[x][y-1];
+    result["TOP_RIGHT"] = this->cells[x+1][y-1];
+    result["TOP_LEFT"] = this->cells[x-1][y-1];
+    result["RIGHT"] = this->cells[x+1][y];
+    result["BOTTOM_RIGHT"] = this->cells[x+1][y+1];
+    result["BOTTOM"] = this->cells[x][y+1];
+    result["BOTTOM_LEFT"] = this->cells[x-1][y+1];
+    result["LEFT"] = this->cells[x-1][y];
+    return result;
+}
+
 Map::Map(unsigned int width, unsigned int height){
     this->width = width;
     this->height = height;
@@ -296,7 +388,9 @@ Map::Map(unsigned int width, unsigned int height){
     this->cells = allocate_cells();
 
     this->next_cells = allocate_cells();
-    this->copy_cells(this->cells, this->next_cells);
+
+    this->stress_relaxation();
+    this->copy_cells(this->next_cells, this->cells);
 }
 
 Map::~Map(){
