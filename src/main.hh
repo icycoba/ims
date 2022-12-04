@@ -8,7 +8,7 @@
  * @date 2022-11-30
  */
 
-#include "map.hh"
+#include "window.hh"
 
 #include <iostream>
 #include <string>

@@ -14,7 +14,7 @@ int main(int argc, char **argv){
 
     srand(time(nullptr));
 
-    Map map = Map(W_WIDTH, W_HEIGHT);
+    Window gui = Window();
 
     std::vector <std::string> args(argv, argv+argc);
     if(args.size() > 1){
@@ -22,8 +22,8 @@ int main(int argc, char **argv){
             if(arg == "--size" || arg == "-s"){
                 if(args.size() > 3){
                     std::cout << "Size: " << args[2] << "x" << args[3] << std::endl;
-                    map.set_height(stoul(args[3],nullptr,0));
-                    map.set_width(stoul(args[2],nullptr,0));
+                    // map.set_height(stoul(args[3],nullptr,0));
+                    // map.set_width(stoul(args[2],nullptr,0));
                 }
                 else{
                     std::cerr << "Missing size argument" << std::endl;
@@ -39,7 +39,7 @@ int main(int argc, char **argv){
         std::cout << "\t\tWidth and height must be greater than 0" << std::endl;
     }
 
-    map.print_map();
+    gui.run_window();
     return 0;
 }
 

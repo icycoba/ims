@@ -17,21 +17,6 @@
 #define SDL_MAIN_HANDLED 
 #include <SDL2/SDL.h>
 
-#define W_WIDTH 1000
-#define W_HEIGHT 720
-
-struct neighbourhood
-{
-    bool top_left = false;
-    bool top = false;
-    bool top_right = false;
-    bool left = false;
-    bool bottom_left = false;
-    bool bottom = false;
-    bool bottom_right = false;
-    bool right = false;
-};
-
 class Map{
     private:
         // Map parameters
@@ -57,24 +42,15 @@ class Map{
         Cell *** get_cells();
         Cell get_cell(int x, int y);
 
-        // Setters
-        void set_width(unsigned int width);
-        void set_height(unsigned int height);
         void copy_cells(Cell *** src, Cell *** dst);
         Cell *** allocate_cells();
         void free_cells(Cell *** cells);
         void stress_relaxation();
 
         // Methods
-        void print_map();
+        void apply_rule(SDL_Surface *new_surface);
 
-        neighbourhood create_moore(int x, int y);
-        void apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y);
-        void scan_window(SDL_Surface *old_surface);
-        void generate_starting_points(SDL_Surface *window_surf);
         vector<pair<Cell*, double>> set_unstable();
-        void run_window(SDL_Window *window);
-        void sdl_window_create();
 
         unordered_map<string, Cell*> get_neigh(int x, int y);
-        };
+};
