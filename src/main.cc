@@ -11,8 +11,10 @@
 #include "main.hh"
 
 int main(int argc, char **argv){
-    
-    Map map = Map();
+
+    srand(time(nullptr));
+
+    Map map = Map(W_WIDTH, W_HEIGHT);
 
     std::vector <std::string> args(argv, argv+argc);
     if(args.size() > 1){

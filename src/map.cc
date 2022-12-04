@@ -9,21 +9,6 @@
  */
 
 #include "map.hh"
-#include <iostream>
-
-#include <SDL2/SDL.h>
-
-struct neighbourhood
-{
-    bool top_left = false;
-    bool top = false;
-    bool top_right = false;
-    bool left = false;
-    bool bottom_left = false;
-    bool bottom = false;
-    bool bottom_right = false;
-    bool right = false;
-};
 
 #define WHITE 0xffffffff
 #define RED 0xff0000ff
@@ -49,54 +34,159 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
     *target_pixel = pixel;
 }
 
+
 bool is_set(Uint32 *pixel)
 {
     return *pixel == WHITE;
 }
 
-neighbourhood create_moore(SDL_Surface *surface, int x, int y)
+bool is_set_state(CellState state)
+{
+    return state == CellState::Cracked;
+}
+
+bool stress_gt_tolerance(vector<double> stress, int index){
+    return stress[index] > MATERIAL_TOLERANCE - 4;
+
+}
+
+neighbourhood Map::create_moore(SDL_Surface *surface, int x, int y)
 {
     neighbourhood result;
-    result.top          = is_set(get_pixel(surface, TOP));
-    result.top_right    = is_set(get_pixel(surface, TOP_RIGHT));
-    result.top_left     = is_set(get_pixel(surface, TOP_LEFT));
-    result.right        = is_set(get_pixel(surface, RIGHT));
-    result.bottom_right = is_set(get_pixel(surface, BOTTOM_RIGHT));
-    result.bottom       = is_set(get_pixel(surface, BOTTOM));
-    result.bottom_left  = is_set(get_pixel(surface, BOTTOM_LEFT));
-    result.left         = is_set(get_pixel(surface, LEFT));
+    
+    Cell *** cells = this->get_cells();
+
+    vector<double> stress = cells[x][y]->get_stress_spectrum();
+
+    if (stress_gt_tolerance(stress,0))
+    {
+        cells[x+1][y]->set_state(CellState::Cracked);
+        cells[x-1][y]->set_state(CellState::Cracked);
+    }
+    if (stress_gt_tolerance(stress, 1))
+    {
+        cells[x+1][y-1]->set_state(CellState::Cracked);
+        cells[x-1][y+1]->set_state(CellState::Cracked);
+    }
+    if (stress_gt_tolerance(stress, 2))
+    {
+        cells[x][y+1]->set_state(CellState::Cracked);
+        cells[x][y-1]->set_state(CellState::Cracked);
+    }
+    if (stress_gt_tolerance(stress, 3))
+    {
+        cells[x+1][y+1]->set_state(CellState::Cracked);
+        cells[x-1][y-1]->set_state(CellState::Cracked);
+    }
+
+    /**DEBUG
+    if(cells == nullptr){
+        cerr << "cells is null" << endl;
+    }
+
+    if(cells[x] == nullptr){
+        cerr << "cells[x] is null" << endl;
+        cerr << "x: " << x << endl;
+    }
+
+    if(cells[x][y] == nullptr){
+        cerr << "cells[x][y] is null" << endl;
+        cerr << "x: " << x << " y: " << y << endl;
+    }*/
+    // cout << is_set_state(CellState::Cracked) << endl;
+
+    result.top              = is_set_state(cells[x][y-1]->get_state());
+    result.top_right        = is_set_state(cells[x+1][y-1]->get_state());
+    result.top_left         = is_set_state(cells[x-1][y-1]->get_state());
+    result.right            = is_set_state(cells[x+1][y]->get_state());
+    result.bottom_right     = is_set_state(cells[x+1][y+1]->get_state());
+    result.bottom           = is_set_state(cells[x][y+1]->get_state());
+    result.bottom_left      = is_set_state(cells[x-1][y+1]->get_state());
+    result.left             = is_set_state(cells[x-1][y]->get_state());
+
+    // cout << "top: " << result.top << endl;
+    // cout << "top_right: " << result.top_right << endl;
+    // cout << "top_left: " << result.top_left << endl;
+    // cout << "right: " << result.right << endl;
+    // cout << "bottom_right: " << result.bottom_right << endl;
+    // cout << "bottom: " << result.bottom << endl;
+    // cout << "bottom_left: " << result.bottom_left << endl;
+    // cout << "left: " << result.left << endl;
+
     return result;
 }
 
-void apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y)
+void Map::apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y)
 {
-    if(n.top_right || n.bottom_right || n.bottom_left || n.top_left){
-        if (n.top_right && ! n.bottom_left){
-            set_pixel(new_surface, BOTTOM_LEFT, WHITE);
-        }
-        if (n.top_left && !n.bottom_right)
-        {
-            set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
-        }
-
-        if (!n.top_left && n.bottom_right)
-        {
-            set_pixel(new_surface, TOP_LEFT, WHITE);
-        }
-        if (!n.top_right && n.bottom_left)
-        {
-            set_pixel(new_surface, TOP_RIGHT, WHITE);
-        }
+    //if(n.top_right || n.bottom_right || n.bottom_left || n.top_left){
+    //    if (n.top_right && !n.bottom_left){
+    //        set_pixel(new_surface, BOTTOM_LEFT, WHITE);
+    //        this->next_cells[x-1][y+1]->set_state(CellState::Cracked);
+    //    }
+    //    if (n.top_left && !n.bottom_right)
+    //    {
+    //        set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
+    //        this->next_cells[x+1][y+1]->set_state(CellState::Cracked);
+    //    }
+    //
+    //    if (!n.top_left && n.bottom_right)
+    //    {
+    //        set_pixel(new_surface, TOP_LEFT, WHITE);
+    //        this->next_cells[x-1][y-1]->set_state(CellState::Cracked);
+    //    }
+    //    if (!n.top_right && n.bottom_left)
+    //    {
+    //        set_pixel(new_surface, TOP_RIGHT, WHITE);
+    //        this->next_cells[x+1][y+1]->set_state(CellState::Cracked);
+    //    }
+    //}
+    //else{
+    //    set_pixel(new_surface, TOP_LEFT, WHITE);
+    //    set_pixel(new_surface, TOP_RIGHT, WHITE);
+    //    set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
+    //    set_pixel(new_surface, BOTTOM_LEFT, WHITE);
+    //    
+    //    this->next_cells[x-1][y-1]->set_state(CellState::Cracked);
+    //    this->next_cells[x+1][y-1]->set_state(CellState::Cracked);
+    //    this->next_cells[x-1][y+1]->set_state(CellState::Cracked);
+    //    this->next_cells[x+1][y+1]->set_state(CellState::Cracked);
+    //}
+    
+    if(n.top){
+        set_pixel(new_surface, TOP, WHITE);
+        //this->next_cells[x+1][y]->set_state(CellState::Cracked);
     }
-    else{
-        set_pixel(new_surface, TOP_LEFT, WHITE);
+    if(n.top_right){
         set_pixel(new_surface, TOP_RIGHT, WHITE);
+        //this->next_cells[x+1][y-1]->set_state(CellState::Cracked);
+    }
+    if(n.right){
+        set_pixel(new_surface, RIGHT, WHITE);
+        //this->next_cells[x][y-1]->set_state(CellState::Cracked);
+    }
+    if(n.bottom_right){
         set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
+        //this->next_cells[x-1][y-1]->set_state(CellState::Cracked);
+    }
+    if(n.bottom){
+        set_pixel(new_surface, BOTTOM, WHITE);
+        //this->next_cells[x-1][y]->set_state(CellState::Cracked);
+    }
+    if(n.bottom_left){
         set_pixel(new_surface, BOTTOM_LEFT, WHITE);
+        //this->next_cells[x-1][y+1]->set_state(CellState::Cracked);
+    }
+    if(n.left){
+        set_pixel(new_surface, LEFT, WHITE);
+        //this->next_cells[x][y+1]->set_state(CellState::Cracked);
+    }
+    if(n.top_left){
+        set_pixel(new_surface, TOP_LEFT, WHITE);
+        //this->next_cells[x+1][y+1]->set_state(CellState::Cracked);
     }
 }
 
-void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
+void Map::scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
 {
     if (old_surface == NULL){
         cerr << "DumB" << endl;
@@ -107,20 +197,38 @@ void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
         cerr << "dumb" << endl;
         return;
     }
-    int w_max = (old_surface->w) - 1;
-    int h_max = (old_surface->h) - 1;
+    int w_max = (this->width) - 1;
+    int h_max = (this->height) - 1;
     for (int x = 1; x < w_max; x++)
     {
         for (int y = 1; y < h_max; y++){
-            if (is_set(get_pixel(old_surface, x, y))){
-                neighbourhood moore = create_moore(old_surface, x, y);
-                apply_rule(moore, new_surface, x, y);
+            Uint32 *pixel = get_pixel(old_surface, x, y);
+            if(pixel != NULL){
+                if (is_set(pixel)){
+                    neighbourhood moore = this->create_moore(old_surface, x, y);
+                    apply_rule(moore, new_surface, x, y);
+                }
+            } else{
+                cerr << "pixel is null" << endl;
             }
         }
     }
 }
 
-void run_window(SDL_Window *window) {
+void Map::generate_starting_points(SDL_Surface *window_surf){
+    // prasácký statický int, aby se nám nezacyklil randomizer
+    static int i = 0;
+    // prasácký cyklus, který vygeneruje random 10 bodů, kde začínají praskliny
+    for (; i < 10; i++)
+    {
+        int x = rand() % window_surf->w;
+        int y = rand() % window_surf->h;
+        set_pixel(window_surf, x, y, WHITE);
+        cout << "x: " << x << " y: " << y << endl;
+    }
+}
+
+void Map::run_window(SDL_Window *window) {
     
     bool is_running = true;
 
@@ -130,6 +238,7 @@ void run_window(SDL_Window *window) {
 
     while (is_running)
     {
+        //generate_starting_points(window_surf);
         while (SDL_PollEvent(&ev) != 0)
         {
             if (ev.type == SDL_QUIT)
@@ -142,7 +251,7 @@ void run_window(SDL_Window *window) {
                 set_pixel(window_surf, x, y, WHITE);
             }
         }
-        scan_window(window_surf, new_surf);
+        this->scan_window(window_surf, new_surf);
         SDL_BlitSurface(new_surf, NULL, window_surf, NULL);
         SDL_UpdateWindowSurface(window);
         //SDL_Delay(1000);
@@ -152,7 +261,7 @@ void run_window(SDL_Window *window) {
     SDL_FreeSurface(new_surf);
 }
 
-void sdl_window_create(){
+void Map::sdl_window_create(){
     SDL_Window *window = nullptr;
 
     if (SDL_Init(SDL_INIT_VIDEO)<0){
@@ -161,11 +270,11 @@ void sdl_window_create(){
     else
     {
         window = SDL_CreateWindow(
-            "CrackSim ;)))",
+            "CrackSim ;(",
             SDL_WINDOWPOS_CENTERED, 
             SDL_WINDOWPOS_CENTERED, 
-            1000, 
-            700, 
+            W_WIDTH, 
+            W_HEIGHT, 
             SDL_WINDOW_SHOWN
         );
         if (window == NULL){
@@ -173,25 +282,26 @@ void sdl_window_create(){
         }
         else
         {
-            run_window(window);
+            this->run_window(window);
         }
     }
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-Map::Map(){
-    this->width = 100;
-    this->height = 100;
-}
-
 Map::Map(unsigned int width, unsigned int height){
     this->width = width;
     this->height = height;
+
+    this->cells = allocate_cells();
+
+    this->next_cells = allocate_cells();
+    this->copy_cells(this->cells, this->next_cells);
 }
 
 Map::~Map(){
-
+    this->free_cells(this->cells);
+    this->free_cells(this->next_cells);
 }
 
 unsigned int Map::get_width(){
@@ -202,9 +312,14 @@ unsigned int Map::get_height(){
     return this->height;
 }
 
-std::vector<std::vector<Cell>> Map::get_cells(){
+Cell *** Map::get_cells(){
     return this->cells;
 }
+
+/*Cell Map::get_cell(int x, int y){
+    cout << "xxx: " << x << " yyy: " << y << endl;
+    return this->cells[x][y][0];
+}*/
 
 void Map::set_width(unsigned int width){
     this->width = width;
@@ -217,4 +332,56 @@ void Map::set_height(unsigned int height){
 void Map::print_map()
 {
     sdl_window_create();
+}
+
+Cell *** Map::allocate_cells()
+{
+    
+    default_random_engine generator;
+    normal_distribution<double> distribution(MATERIAL_TOLERANCE / 2, (MATERIAL_TOLERANCE / 4) + 2 );
+
+    Cell *** result = new Cell **[this->width];
+
+    for (unsigned int i = 0; i < this->width; i++)
+    {
+        Cell **row = new Cell*[this->height];
+        result[i] = row;
+        for (unsigned int j = 0; j < this->height; j++)
+        {
+            //int ssindex = 0;
+            
+            result[i][j] = new Cell(i, j, {abs(distribution(generator)), abs(distribution(generator)), abs(distribution(generator)), abs(distribution(generator))});
+            //for (double stressSpectrum : result[i][j][0].get_stress_spectrum()){
+            //    cout << ssindex << ": " << stressSpectrum << endl;
+            //    ssindex++;
+            //}
+            //cout << (result[j][i]->get_state() == CellState::Default) << endl;
+        }
+        
+    }
+    return result;
+}
+
+void Map::free_cells(Cell ***cells)
+{
+    for (unsigned int i = 0; i < this->width; i++)
+    {
+        for (unsigned int j = 0; j < this->height; j++)
+        {
+            delete cells[i][j];
+        }
+        delete cells[i];
+    }
+    delete cells;
+}
+
+void Map::copy_cells(Cell *** src, Cell *** dst)
+{
+    for (unsigned int i = 0; i < this->width; i++)
+    {
+        for (unsigned int j = 0; j < this->height; j++)
+        {
+            *dst[i][j] = *src[i][j];
+        }
+    }
 }

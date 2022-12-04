@@ -1,2 +1,5 @@
 *.o
 cracksim
+.vscode
+*.exe
+*.json

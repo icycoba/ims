@@ -2,23 +2,24 @@ ifeq ($(OS),Windows_NT)
 # Windows
 # Path: src\Makefile
 	DEL := del *.o *.exe
+	LIBS := -ID:\SDL2\i686-w64-mingw32\include -LD:\SDL2\i686-w64-mingw32\lib -lSDL2
 else 
 # Linux
 # Path: src/Makefile
 	DEL := rm -f *.o cracksim
+	LIBS=-lSDL2
 endif
 
 CXX=g++
 CXXFLAGS=-g -Wall -Wextra -std=c++17
-LIBS=-ID:\SDL2\i686-w64-mingw32\include -LD:\SDL2\i686-w64-mingw32\lib -lSDL2
 
 all: cracksim
 
 cracksim: cell.o map.o main.o 
 	$(CXX) $(CXXFLAGS) main.o cell.o map.o -o cracksim  $(LIBS)
 
-main.o: main.cc main.hh cell.hh
-	$(CXX) $(CXXFLAGS) -c main.cc
+main.o: main.cc main.hh map.hh cell.hh
+	$(CXX) $(CXXFLAGS) -c main.cc $(LIBS)
 
 map.o: map.cc map.hh
 	$(CXX) $(CXXFLAGS) -c map.cc $(LIBS)

@@ -9,20 +9,26 @@
  */
 
 #include "cell.hh"
-using namespace std;
 
-#include <vector>
+#include <iostream>
+#include <ctime>
 
-enum class MaterialType{
-    Mud,
-    Concrete,
-    Glaze,
-    Ceramic,
-    Glass,
-    Stone,
-    Metal,
-    Wood,
-    Ice
+#define SDL_MAIN_HANDLED 
+#include <SDL2/SDL.h>
+
+#define W_WIDTH 1000
+#define W_HEIGHT 720
+
+struct neighbourhood
+{
+    bool top_left = false;
+    bool top = false;
+    bool top_right = false;
+    bool left = false;
+    bool bottom_left = false;
+    bool bottom = false;
+    bool bottom_right = false;
+    bool right = false;
 };
 
 class Map{
@@ -36,24 +42,34 @@ class Map{
         float elasticitySharing;
 
         // Map cells
-        vector<vector<Cell>> cells;
+        Cell *** cells;
+        Cell *** next_cells;
+
     public:
         // Constructor/destructor
-        Map();
         Map(unsigned int width, unsigned int height);
         ~Map();
 
         // Getters
         unsigned int get_width();
         unsigned int get_height();
-        vector<vector<Cell>> get_cells();
+        Cell *** get_cells();
         Cell get_cell(int x, int y);
 
         // Setters
         void set_width(unsigned int width);
         void set_height(unsigned int height);
-        void set_cells(vector<vector<Cell>> cells);
+        void copy_cells(Cell *** src, Cell *** dst);
+        Cell *** allocate_cells();
+        void free_cells(Cell *** cells);
 
         // Methods
         void print_map();
+
+        neighbourhood create_moore(SDL_Surface *surface, int x, int y);
+        void apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y);
+        void scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface);
+        void generate_starting_points(SDL_Surface *window_surf);
+        void run_window(SDL_Window *window);
+        void sdl_window_create();
         };
