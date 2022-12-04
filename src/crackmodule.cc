@@ -33,5 +33,5 @@ double CrackModule::get_kinetic_potential(){
 }
 
 void CrackModule::set_kinetic_potential(double kineticPotential){
-    this->kineticPotential = kineticPotential;
+    this->kineticPotential += kineticPotential;
 }

@@ -12,7 +12,7 @@
 #include <algorithm> 
 
 #define WHITE 0xffffffff
-#define RED 0xff0000ff // blue :omegalul:
+#define RED 0xffff0000
 
 #define TOP x, y - 1
 #define TOP_RIGHT x + 1, y - 1
@@ -274,6 +274,7 @@ void Map::run_window(SDL_Window *window) {
         else{
             set_pixel(window_surf, x, y, RED);
         }
+        int maxIndex = unstable[i].first->maximum_stress();
         CrackModule cm = CrackModule(x, y, unstable[i].second);
     }
     
