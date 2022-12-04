@@ -30,6 +30,19 @@ Cell::~Cell(){
     
 }
 
+Uint32 *Cell::get_pixel(SDL_Surface *surface)
+{
+    pair<int, int> coord = this->get_coordinates();
+    // this was find on the internet, i have no idea how it works but it does
+    return (Uint32 *)((Uint8 *)surface->pixels + coord.second * surface->pitch + coord.first * surface->format->BytesPerPixel);
+}
+
+void Cell::set_pixel(SDL_Surface *surface, Uint32 color)
+{
+    Uint32 *const target_pixel = this->get_pixel(surface);
+    *target_pixel = color;
+}
+
 pair<int, int> Cell::get_coordinates(){
     return make_pair(this->x, this->y);
 }

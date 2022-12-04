@@ -31,7 +31,7 @@ crackmodule.o: crackmodule.cc crackmodule.hh
 	$(CXX) $(CXXFLAGS) -c crackmodule.cc $(LIBS)
 
 cell.o: cell.cc cell.hh
-	$(CXX) $(CXXFLAGS) -c cell.cc
+	$(CXX) $(CXXFLAGS) -c cell.cc $(LIBS)
 
 clean:
 	$(DEL)

@@ -38,19 +38,6 @@ SDL_Surface *Window::get_surf(){
 	return SDL_GetWindowSurface(this->window);
 }
 
-Uint32 *Window::get_pixel(int x, int y)
-{
-	SDL_Surface *surface = this->get_surf();
-	// this was find on the internet, i have no idea how it works but it does
-	return (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel);
-}
-
-void Window::set_pixel(int x, int y, Uint32 color)
-{
-	Uint32 *const target_pixel = this->get_pixel(x, y);
-	*target_pixel = color;
-}
-
 void Window::generate_starting_points()
 {
 	// prasácký statický int, aby se nám nezacyklil randomizer
@@ -60,7 +47,7 @@ void Window::generate_starting_points()
 	{
 		int x = rand() % W_WIDTH;
 		int y = rand() % W_HEIGHT;
-		set_pixel( x, y, WHITE);
+		this->map->get_cells()[x][y]->set_pixel(this->get_surf(), WHITE);
 		cout << "x: " << x << " y: " << y << endl;
 	}
 }
@@ -98,7 +85,7 @@ void Window::run_window()
 				int x, y;
 				SDL_GetMouseState(&x, &y);
 				// Todo do we even want to make it crack on click? No we dont
-				set_pixel(x, y, WHITE);
+				this->map->get_cells()[x][y]->set_pixel(this->get_surf(), WHITE);
 			}
 		}
 		this->map->apply_rule(this->get_surf());

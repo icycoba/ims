@@ -1,6 +1,4 @@
 #include "map.hh"
-#define WHITE 0xffffffff
-#define RED 0x00ffffff
 
 #define W_WIDTH 1000
 #define W_HEIGHT 720
@@ -28,7 +26,5 @@ public:
 	SDL_Surface *get_surf();
 	void generate_starting_points();
 	void run_window();
-	Uint32 *get_pixel(int x, int y);
-	void set_pixel(int x, int y, Uint32 color);
 };
 
