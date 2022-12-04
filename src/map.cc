@@ -62,7 +62,7 @@ vector<pair<Cell*, double>> Map::set_unstable(){
             if (this->cells[x][y]->get_state() != CellState::Cracked){
                 int maxIndex = this->cells[x][y]->maximum_stress();
                 double intensity = this->cells[x][y]->get_stress_spectrum()[maxIndex];
-                if ( intensity > MATERIAL_TOLERANCE){
+                if ( (int)intensity > MATERIAL_TOLERANCE){
                     result.push_back(pair<Cell*,double>(this->cells[x][y], intensity));
                 }
             }
@@ -160,7 +160,7 @@ Cell *** Map::allocate_cells()
 {
     
     default_random_engine generator;
-    normal_distribution<double> distribution(MATERIAL_TOLERANCE / 2, (MATERIAL_TOLERANCE / 4) + 2 );
+    normal_distribution<double> distribution(MATERIAL_TOLERANCE / 1.5, (MATERIAL_TOLERANCE / 5) );
 
     Cell *** result = new Cell **[this->width];
 
