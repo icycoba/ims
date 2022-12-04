@@ -45,7 +45,10 @@ bool is_set_state(CellState state)
     return state == CellState::Cracked;
 }
 
+bool stress_gt_tolerance(vector<double> stress, int index){
+    return stress[index] > MATERIAL_TOLERANCE - 4;
 
+}
 
 neighbourhood Map::create_moore(SDL_Surface *surface, int x, int y)
 {
@@ -53,24 +56,29 @@ neighbourhood Map::create_moore(SDL_Surface *surface, int x, int y)
     
     Cell *** cells = this->get_cells();
 
-    if(cells[x][y]->get_stress_spectrum()[0] > MATERIAL_TOLERANCE-4){
+    vector<double> stress = cells[x][y]->get_stress_spectrum();
+
+    if (stress_gt_tolerance(stress,0))
+    {
         cells[x+1][y]->set_state(CellState::Cracked);
         cells[x-1][y]->set_state(CellState::Cracked);
     }
-    if(cells[x][y]->get_stress_spectrum()[1] > MATERIAL_TOLERANCE-4){
+    if (stress_gt_tolerance(stress, 1))
+    {
         cells[x+1][y-1]->set_state(CellState::Cracked);
         cells[x-1][y+1]->set_state(CellState::Cracked);
     }
-    if(cells[x][y]->get_stress_spectrum()[2] > MATERIAL_TOLERANCE-4){
+    if (stress_gt_tolerance(stress, 2))
+    {
         cells[x][y+1]->set_state(CellState::Cracked);
         cells[x][y-1]->set_state(CellState::Cracked);
     }
-    if(cells[x][y]->get_stress_spectrum()[3] > MATERIAL_TOLERANCE-4){
+    if (stress_gt_tolerance(stress, 3))
+    {
         cells[x+1][y+1]->set_state(CellState::Cracked);
         cells[x-1][y-1]->set_state(CellState::Cracked);
     }
-    
-    
+
     /**DEBUG
     if(cells == nullptr){
         cerr << "cells is null" << endl;
@@ -262,7 +270,7 @@ void Map::sdl_window_create(){
     else
     {
         window = SDL_CreateWindow(
-            "CrackSim ;)))))))))))))))))))))))))))))))))))))))",
+            "CrackSim ;(",
             SDL_WINDOWPOS_CENTERED, 
             SDL_WINDOWPOS_CENTERED, 
             W_WIDTH, 
@@ -328,12 +336,7 @@ void Map::print_map()
 
 Cell *** Map::allocate_cells()
 {
-    // wight = 4
-    // hght = 3
     
-    ////
-    ////
-    ////
     default_random_engine generator;
     normal_distribution<double> distribution(MATERIAL_TOLERANCE / 2, (MATERIAL_TOLERANCE / 4) + 2 );
 
