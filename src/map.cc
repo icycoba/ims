@@ -40,6 +40,10 @@ bool is_set(Uint32 *pixel)
     return *pixel == WHITE;
 }
 
+bool is_set_state(CellState state)
+{
+    return state == CellState::Cracked;
+}
 
 
 
@@ -48,7 +52,26 @@ neighbourhood Map::create_moore(SDL_Surface *surface, int x, int y)
     neighbourhood result;
     
     Cell *** cells = this->get_cells();
-    //cells[x][y]->set_state(CellState::Intact);
+
+    if(cells[x][y]->get_stress_spectrum()[0] > MATERIAL_TOLERANCE-4){
+        cells[x+1][y]->set_state(CellState::Cracked);
+        cells[x-1][y]->set_state(CellState::Cracked);
+    }
+    if(cells[x][y]->get_stress_spectrum()[1] > MATERIAL_TOLERANCE-4){
+        cells[x+1][y-1]->set_state(CellState::Cracked);
+        cells[x-1][y+1]->set_state(CellState::Cracked);
+    }
+    if(cells[x][y]->get_stress_spectrum()[2] > MATERIAL_TOLERANCE-4){
+        cells[x][y+1]->set_state(CellState::Cracked);
+        cells[x][y-1]->set_state(CellState::Cracked);
+    }
+    if(cells[x][y]->get_stress_spectrum()[3] > MATERIAL_TOLERANCE-4){
+        cells[x+1][y+1]->set_state(CellState::Cracked);
+        cells[x-1][y-1]->set_state(CellState::Cracked);
+    }
+    
+    
+    /**DEBUG
     if(cells == nullptr){
         cerr << "cells is null" << endl;
     }
@@ -61,74 +84,97 @@ neighbourhood Map::create_moore(SDL_Surface *surface, int x, int y)
     if(cells[x][y] == nullptr){
         cerr << "cells[x][y] is null" << endl;
         cerr << "x: " << x << " y: " << y << endl;
-    }
-    //cout << (cells[216][125]->get_state() == CellState::Default) << endl;
+    }*/
+    // cout << is_set_state(CellState::Cracked) << endl;
 
-    //cout << "x: " << x << " y: " << y << endl;
-    //cout << (cells[x/8][y/8]->get_state() == CellState::Default) << endl;
+    result.top              = is_set_state(cells[x][y-1]->get_state());
+    result.top_right        = is_set_state(cells[x+1][y-1]->get_state());
+    result.top_left         = is_set_state(cells[x-1][y-1]->get_state());
+    result.right            = is_set_state(cells[x+1][y]->get_state());
+    result.bottom_right     = is_set_state(cells[x+1][y+1]->get_state());
+    result.bottom           = is_set_state(cells[x][y+1]->get_state());
+    result.bottom_left      = is_set_state(cells[x-1][y+1]->get_state());
+    result.left             = is_set_state(cells[x-1][y]->get_state());
 
-    // result.top              = map->get_cells()[(x)/8][(y-1)/8]->get_state() == CellState::Default;
-    // result.top_right        = map->get_cells()[(x+1)/8][(y-1)/8]->get_state() == CellState::Default;
-    // result.top_left         = map->get_cells()[(x-1)/8][(y-1)/8]->get_state() == CellState::Default;
-    // result.right            = map->get_cells()[(x+1)/8][(y)/8]->get_state() == CellState::Default;
-    // result.bottom_right     = map->get_cells()[(x+1)/8][(y+1)/8]->get_state() == CellState::Default;
-    // result.bottom           = map->get_cells()[(x)/8][(y+1)/8]->get_state() == CellState::Default;
-    // result.bottom_left      = map->get_cells()[(x-1)/8][(y+1)/8]->get_state() == CellState::Default;
-    // result.left             = map->get_cells()[(x-1)/8][(y)/8]->get_state() == CellState::Default;
-    
-    result.top          = is_set(get_pixel(surface, TOP));
-    result.top_right    = is_set(get_pixel(surface, TOP_RIGHT));
-    result.top_left     = is_set(get_pixel(surface, TOP_LEFT));
-    result.right        = is_set(get_pixel(surface, RIGHT));
-    result.bottom_right = is_set(get_pixel(surface, BOTTOM_RIGHT));
-    result.bottom       = is_set(get_pixel(surface, BOTTOM));
-    result.bottom_left  = is_set(get_pixel(surface, BOTTOM_LEFT));
-    result.left         = is_set(get_pixel(surface, LEFT));
+    // cout << "top: " << result.top << endl;
+    // cout << "top_right: " << result.top_right << endl;
+    // cout << "top_left: " << result.top_left << endl;
+    // cout << "right: " << result.right << endl;
+    // cout << "bottom_right: " << result.bottom_right << endl;
+    // cout << "bottom: " << result.bottom << endl;
+    // cout << "bottom_left: " << result.bottom_left << endl;
+    // cout << "left: " << result.left << endl;
 
-
-    // if(map->get_cells()[x/8][y/8]->get_state() == CellState::Cracked){
-    //     cout << "dong" << endl;
-    // } else {
-    //     cout << "dang" << endl;
-    // }
-
-
-    //result.top          = map->get_cell(TOP).get_state() == CellState::Default;
-    //result.top_right    = map->get_cell(TOP_RIGHT).get_state() == CellState::Default;
-    //result.top_left     = map->get_cell(TOP_LEFT).get_state() == CellState::Default;
-    //result.right        = map->get_cell(RIGHT).get_state() == CellState::Default;
-    //result.bottom_right = map->get_cell(BOTTOM_RIGHT).get_state() == CellState::Default;
-    //result.bottom       = map->get_cell(BOTTOM).get_state() == CellState::Default;
-    //result.bottom_left  = map->get_cell(BOTTOM_LEFT).get_state() == CellState::Default;
-    //result.left         = map->get_cell(LEFT).get_state() == CellState::Default;
     return result;
 }
 
 void Map::apply_rule(neighbourhood n, SDL_Surface *new_surface, int x, int y)
 {
-    if(n.top_right || n.bottom_right || n.bottom_left || n.top_left){
-        if (n.top_right && ! n.bottom_left){
-            set_pixel(new_surface, BOTTOM_LEFT, WHITE);
-        }
-        if (n.top_left && !n.bottom_right)
-        {
-            set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
-        }
-
-        if (!n.top_left && n.bottom_right)
-        {
-            set_pixel(new_surface, TOP_LEFT, WHITE);
-        }
-        if (!n.top_right && n.bottom_left)
-        {
-            set_pixel(new_surface, TOP_RIGHT, WHITE);
-        }
+    //if(n.top_right || n.bottom_right || n.bottom_left || n.top_left){
+    //    if (n.top_right && !n.bottom_left){
+    //        set_pixel(new_surface, BOTTOM_LEFT, WHITE);
+    //        this->next_cells[x-1][y+1]->set_state(CellState::Cracked);
+    //    }
+    //    if (n.top_left && !n.bottom_right)
+    //    {
+    //        set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
+    //        this->next_cells[x+1][y+1]->set_state(CellState::Cracked);
+    //    }
+    //
+    //    if (!n.top_left && n.bottom_right)
+    //    {
+    //        set_pixel(new_surface, TOP_LEFT, WHITE);
+    //        this->next_cells[x-1][y-1]->set_state(CellState::Cracked);
+    //    }
+    //    if (!n.top_right && n.bottom_left)
+    //    {
+    //        set_pixel(new_surface, TOP_RIGHT, WHITE);
+    //        this->next_cells[x+1][y+1]->set_state(CellState::Cracked);
+    //    }
+    //}
+    //else{
+    //    set_pixel(new_surface, TOP_LEFT, WHITE);
+    //    set_pixel(new_surface, TOP_RIGHT, WHITE);
+    //    set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
+    //    set_pixel(new_surface, BOTTOM_LEFT, WHITE);
+    //    
+    //    this->next_cells[x-1][y-1]->set_state(CellState::Cracked);
+    //    this->next_cells[x+1][y-1]->set_state(CellState::Cracked);
+    //    this->next_cells[x-1][y+1]->set_state(CellState::Cracked);
+    //    this->next_cells[x+1][y+1]->set_state(CellState::Cracked);
+    //}
+    
+    if(n.top){
+        set_pixel(new_surface, TOP, WHITE);
+        //this->next_cells[x+1][y]->set_state(CellState::Cracked);
     }
-    else{
-        set_pixel(new_surface, TOP_LEFT, WHITE);
+    if(n.top_right){
         set_pixel(new_surface, TOP_RIGHT, WHITE);
+        //this->next_cells[x+1][y-1]->set_state(CellState::Cracked);
+    }
+    if(n.right){
+        set_pixel(new_surface, RIGHT, WHITE);
+        //this->next_cells[x][y-1]->set_state(CellState::Cracked);
+    }
+    if(n.bottom_right){
         set_pixel(new_surface, BOTTOM_RIGHT, WHITE);
+        //this->next_cells[x-1][y-1]->set_state(CellState::Cracked);
+    }
+    if(n.bottom){
+        set_pixel(new_surface, BOTTOM, WHITE);
+        //this->next_cells[x-1][y]->set_state(CellState::Cracked);
+    }
+    if(n.bottom_left){
         set_pixel(new_surface, BOTTOM_LEFT, WHITE);
+        //this->next_cells[x-1][y+1]->set_state(CellState::Cracked);
+    }
+    if(n.left){
+        set_pixel(new_surface, LEFT, WHITE);
+        //this->next_cells[x][y+1]->set_state(CellState::Cracked);
+    }
+    if(n.top_left){
+        set_pixel(new_surface, TOP_LEFT, WHITE);
+        //this->next_cells[x+1][y+1]->set_state(CellState::Cracked);
     }
 }
 
@@ -145,7 +191,6 @@ void Map::scan_window(SDL_Surface *old_surface, SDL_Surface *new_surface)
     }
     int w_max = (this->width) - 1;
     int h_max = (this->height) - 1;
-    cout << w_max << " " << h_max << endl;
     for (int x = 1; x < w_max; x++)
     {
         for (int y = 1; y < h_max; y++){
