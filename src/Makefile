@@ -15,7 +15,7 @@ CXXFLAGS=-g -Wall -Wextra -std=c++17
 
 all: cracksim
 
-cracksim: cell.o window.o map.o main.o 
+cracksim: cell.o  map.o window.o main.o 
 	$(CXX) $(CXXFLAGS) main.o cell.o window.o map.o -o cracksim  $(LIBS)
 
 main.o: main.cc main.hh map.hh cell.hh window.hh
@@ -28,7 +28,7 @@ map.o: map.cc map.hh
 	$(CXX) $(CXXFLAGS) -c map.cc $(LIBS)
 
 cell.o: cell.cc cell.hh
-	$(CXX) $(CXXFLAGS) -c cell.cc
+	$(CXX) $(CXXFLAGS) -c cell.cc $(LIBS)
 
 clean:
 	$(DEL)

@@ -11,6 +11,12 @@
 #include <vector>
 #include <random>
 
+#define WHITE 0xffffffff
+#define RED 0x00ffffff
+
+#define SDL_MAIN_HANDLED
+#include <SDL2/SDL.h>
+
 using namespace std;
 
 #define MATERIAL_TOLERANCE 14
@@ -50,11 +56,15 @@ class Cell{
         vector<double> get_stress_spectrum();
         double get_stress_avg();
 
+        Uint32 *get_pixel(SDL_Surface *surface);
+
+
         // Setters
         void set_coordinates(int x, int y);
         void set_state(CellState state);
         void set_stress_spectrum(vector<double> stressSpectrum);
 
+        void set_pixel(SDL_Surface *surface, Uint32 color);
         // Methods
         int maximum_stress();
 };
