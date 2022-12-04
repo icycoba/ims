@@ -10,6 +10,8 @@
 
 #include "map.hh"
 
+#define GAUSS abs(distribution(generator))
+
 bool is_set_state(CellState state)
 {
     return state == CellState::Cracked;
@@ -94,11 +96,11 @@ void Map::stress_relaxation(){
             if (infNeighbours == 0){
                 continue;
             }
-            double norm = (infNeighbours);
-            sigma[0] = 1 - (stress_sum[0]/infNeighbours) * MATERIAL_ELASTICITY_PERCENTAGE;
-            sigma[1] = 1 - (stress_sum[1]/infNeighbours) * MATERIAL_ELASTICITY_PERCENTAGE;
-            sigma[2] = 1 - (stress_sum[2]/infNeighbours) * MATERIAL_ELASTICITY_PERCENTAGE;
-            sigma[3] = 1 - (stress_sum[3]/infNeighbours) * MATERIAL_ELASTICITY_PERCENTAGE;
+            double norm = MATERIAL_ELASTICITY_PERCENTAGE /(infNeighbours);
+            sigma[0] = 1 - stress_sum[0] * norm;
+            sigma[1] = 1 - stress_sum[1] * norm;
+            sigma[2] = 1 - stress_sum[2] * norm;
+            sigma[3] = 1 - stress_sum[3] * norm;
 
             std::vector<double> stress_spectrum = this->cells[x][y]->get_stress_spectrum();
             stress_spectrum[0] += sigma[0];
@@ -106,11 +108,6 @@ void Map::stress_relaxation(){
             stress_spectrum[2] += sigma[2];
             stress_spectrum[3] += sigma[3];
             this->next_cells[x][y]->set_stress_spectrum(stress_spectrum);
-            //cout << "=== JOE ===" << endl;
-            //cout << stress_sum[0] << " " << stress_sum[1] << " " << stress_sum[2] << " " << stress_sum[3] << endl;
-            ////cout << norm << endl;
-            //cout << sigma[0] << " " << sigma[1] << " " << sigma[2] << " " << sigma[3] << endl;
-            //cout << "=== COCK ===" << endl;
         }
     }
 }
@@ -159,19 +156,6 @@ Cell *** Map::get_cells(){
     return this->cells;
 }
 
-/*Cell Map::get_cell(int x, int y){
-    cout << "xxx: " << x << " yyy: " << y << endl;
-    return this->cells[x][y][0];
-}*/
-
-void Map::set_width(unsigned int width){
-    this->width = width;
-}
-
-void Map::set_height(unsigned int height){
-    this->height = height;
-}
-
 Cell *** Map::allocate_cells()
 {
     
@@ -180,20 +164,13 @@ Cell *** Map::allocate_cells()
 
     Cell *** result = new Cell **[this->width];
 
-    for (unsigned int i = 0; i < this->width; i++)
+    for (unsigned int x = 0; x < this->width; x++)
     {
         Cell **row = new Cell*[this->height];
-        result[i] = row;
-        for (unsigned int j = 0; j < this->height; j++)
+        result[x] = row;
+        for (unsigned int y = 0; y < this->height; y++)
         {
-            //int ssindex = 0;
-            
-            result[i][j] = new Cell(i, j, {abs(distribution(generator)), abs(distribution(generator)), abs(distribution(generator)), abs(distribution(generator))});
-            //for (double stressSpectrum : result[i][j][0].get_stress_spectrum()){
-            //    cout << ssindex << ": " << stressSpectrum << endl;
-            //    ssindex++;
-            //}
-            //cout << (result[j][i]->get_state() == CellState::Default) << endl;
+            result[x][y] = new Cell(x, y, {GAUSS, GAUSS, GAUSS, GAUSS});
         }
         
     }
@@ -202,24 +179,24 @@ Cell *** Map::allocate_cells()
 
 void Map::free_cells(Cell ***cells)
 {
-    for (unsigned int i = 0; i < this->width; i++)
+    for (unsigned int x = 0; x < this->width; x++)
     {
-        for (unsigned int j = 0; j < this->height; j++)
+        for (unsigned int y = 0; y < this->height; y++)
         {
-            delete cells[i][j];
+            delete cells[x][y];
         }
-        delete cells[i];
+        delete cells[x];
     }
     delete cells;
 }
 
 void Map::copy_cells(Cell *** src, Cell *** dst)
 {
-    for (unsigned int i = 0; i < this->width; i++)
+    for (unsigned int x = 0; x < this->width; x++)
     {
-        for (unsigned int j = 0; j < this->height; j++)
+        for (unsigned int y = 0; y < this->height; y++)
         {
-            *dst[i][j] = *src[i][j];
+            *dst[x][y] = *src[x][y];
         }
     }
 }
