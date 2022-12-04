@@ -12,7 +12,7 @@
 #include <algorithm> 
 
 #define WHITE 0xffffffff
-#define RED 0xff0000ff
+#define RED 0xff0000ff // blue :omegalul:
 
 #define TOP x, y - 1
 #define TOP_RIGHT x + 1, y - 1
@@ -236,7 +236,7 @@ vector<pair<Cell*, double>> Map::set_unstable(){
             if (this->cells[x][y]->get_state() != CellState::Cracked){
                 int maxIndex = this->cells[x][y]->maximum_stress();
                 double intensity = this->cells[x][y]->get_stress_spectrum()[maxIndex];
-                if ( intensity > MATERIAL_TOLERANCE){
+                if ( (int)intensity > MATERIAL_TOLERANCE){
                     result.push_back(pair<Cell*,double>(this->cells[x][y], intensity));
                 }
             }
@@ -262,12 +262,20 @@ void Map::run_window(SDL_Window *window) {
     vector<pair<Cell*, double>> unstable = this->set_unstable();
     sort(unstable.begin(), unstable.end(), sortbysec);
 
-    // for (size_t i=0; i<unstable.size(); i++)
-    // {
-    //     // "first" and "second" are used to access
-    //     // 1st and 2nd element of pair respectively
-    //     cout << unstable[i].first << " " << unstable[i].second << endl;
-    // }
+    for (size_t i=0; i<unstable.size(); i++)
+    {
+        // "first" and "second" are used to access
+        // 1st and 2nd element of pair respectively
+        int x = unstable[i].first->get_coordinates().first;
+        int y = unstable[i].first->get_coordinates().second;
+        if(i==0){
+            set_pixel(window_surf, x, y, WHITE);
+        }
+        else{
+            set_pixel(window_surf, x, y, RED);
+        }
+        CrackModule cm = CrackModule(x, y, unstable[i].second);
+    }
     
     while (is_running)
     {
@@ -432,7 +440,7 @@ Cell *** Map::allocate_cells()
 {
     
     default_random_engine generator;
-    normal_distribution<double> distribution(MATERIAL_TOLERANCE / 2, (MATERIAL_TOLERANCE / 4) + 2 );
+    normal_distribution<double> distribution(MATERIAL_TOLERANCE / 1.5, (MATERIAL_TOLERANCE / 5) );
 
     Cell *** result = new Cell **[this->width];
 
