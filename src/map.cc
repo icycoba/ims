@@ -125,6 +125,9 @@ void CMCrack(CrackModule cm, Cell*** cells, int x, int y, SDL_Surface *new_surfa
 
 void Map::apply_rule(SDL_Surface *new_surface, vector<pair<Cell*, double>> unstable)
 {
+    if (unstable.empty()){
+        return;
+    }
     for (int i = 0; i < 150 ; i++){
         if (i > unstable.size()){
             break;

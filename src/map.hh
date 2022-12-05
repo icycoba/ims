@@ -23,10 +23,6 @@ class Map{
         unsigned int width;
         unsigned int height;
 
-        // Map material
-        int elasticityLoop;
-        float elasticitySharing;
-
         // Map cells
         Cell *** cells;
         Cell *** next_cells;

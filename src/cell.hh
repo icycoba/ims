@@ -19,10 +19,8 @@
 
 using namespace std;
 
-#define MATERIAL_TOLERANCE 14
-#define MATERIAL_ELASTICITY_LOOP 5
-#define MATERIAL_ELASTICITY_SHARING 0.1
-#define MATERIAL_ELASTICITY_PERCENTAGE 0.2
+inline int MATERIAL_TOLERANCE = 30;
+inline double MATERIAL_ELASTICITY_PERCENTAGE = 0.2;
 
 /**
  * @brief Stav buňky
