@@ -17,7 +17,7 @@ bool is_set_state(CellState state)
     return state == CellState::Cracked;
 }
 
-bool stress_gt_tolerance(vector<double> stress, int index){
+bool stress_gt_tolerance(vector<double> stress, uint index){
     return stress[index] > MATERIAL_TOLERANCE - 4;
 
 }
@@ -48,7 +48,7 @@ bool stress_gt_tolerance(vector<double> stress, int index){
     }
 }*/
 
-void CMCrack(CrackModule cm, Cell*** cells, int x, int y, SDL_Surface *new_surface){
+void CMCrack(CrackModule cm, Cell*** cells, uint x, uint y, SDL_Surface *new_surface){
     //is cell cracked
     //cout << x << " " << y << endl;
     if(x < 0 || y < 0){
@@ -65,12 +65,12 @@ void CMCrack(CrackModule cm, Cell*** cells, int x, int y, SDL_Surface *new_surfa
     
     cells[x][y]->set_pixel(new_surface, WHITE);
     cells[x][y]->set_state(CellState::Cracked);
-    int maxIntensityIndex = cells[x][y]->maximum_stress();
+    uint maxuintensityIndex = cells[x][y]->maximum_stress();
 
-    int xHead = x;
-    int yHead = y;
-    int xTail = x;
-    int yTail = y;
+    uint xHead = x;
+    uint yHead = y;
+    uint xTail = x;
+    uint yTail = y;
 
     Direction directionEnumHead = Direction::NONE;
     Direction directionEnumTail = Direction::NONE;
@@ -118,7 +118,7 @@ void CMCrack(CrackModule cm, Cell*** cells, int x, int y, SDL_Surface *new_surfa
         cout << "holdup" << endl;
         return;
     }
-    pair <int, int> direction;
+    pair <uint, uint> direction;
 
     if(cm.get_direction_enum() == Direction::TOP){
         direction = make_pair(x,y-1);
@@ -146,8 +146,8 @@ void CMCrack(CrackModule cm, Cell*** cells, int x, int y, SDL_Surface *new_surfa
     //cout << "xhead: "   << xHead << " yhead: " << yHead << endl;
     //cout << "xtail: "   << xTail << " ytail: " << yTail << endl;
     //cout << "=============================================" << endl;
-    int lengthHead = abs(sqrt((direction.first-xHead)*(direction.first-xHead) + (direction.second-yHead)*(direction.second-yHead)));
-    int lengthTail = abs(sqrt((direction.first-xTail)*(direction.first-xTail) + (direction.second-yTail)*(direction.second-yTail)));
+    uint lengthHead = abs(sqrt((direction.first-xHead)*(direction.first-xHead) + (direction.second-yHead)*(direction.second-yHead)));
+    uint lengthTail = abs(sqrt((direction.first-xTail)*(direction.first-xTail) + (direction.second-yTail)*(direction.second-yTail)));
     //cout << "lengthHead: " << lengthHead << endl;
     //cout << "lengthTail: " << lengthTail << endl;
     /*if(lengthHead == lengthTail){
@@ -262,15 +262,15 @@ vector<pair<Cell*, double>> Map::set_unstable(){
 
 void Map::stress_relaxation(){
 
-    for(unsigned int x = 1; x < this->width-1; x++){
-        for(unsigned int y = 1; y < this->height-1; y++){
+    for(uint x = 1; x < this->width-1; x++){
+        for(uint y = 1; y < this->height-1; y++){
             
             vector<double> sigma = {0, 0, 0, 0};
             double my_stress = this->cells[x][y]->get_stress_avg();
             vector<double> stress_sum = {0,0,0,0};
 
             unordered_map<string, Cell*> neighs = this->get_neigh(x,y);
-            int infNeighbours = 0;
+            uint infNeighbours = 0;
 
             for( const pair<const string, Cell*>& n : neighs){
                 if(my_stress > n.second->get_stress_avg()){
@@ -300,7 +300,7 @@ void Map::stress_relaxation(){
     }
 }
 
-unordered_map<string, Cell*> Map::get_neigh(int x, int y){
+unordered_map<string, Cell*> Map::get_neigh(uint x, uint y){
 
     unordered_map<string, Cell*> result;
 
@@ -315,7 +315,7 @@ unordered_map<string, Cell*> Map::get_neigh(int x, int y){
     return result;
 }
 
-Map::Map(unsigned int width, unsigned int height){
+Map::Map(uint width, uint height){
     this->width = width;
     this->height = height;
 
@@ -332,11 +332,11 @@ Map::~Map(){
     this->free_cells(this->next_cells);
 }
 
-unsigned int Map::get_width(){
+uint Map::get_width(){
     return this->width;
 }
 
-unsigned int Map::get_height(){
+uint Map::get_height(){
     return this->height;
 }
 
@@ -352,11 +352,11 @@ Cell *** Map::allocate_cells()
 
     Cell *** result = new Cell **[this->width];
 
-    for (unsigned int x = 0; x < this->width; x++)
+    for (uint x = 0; x < this->width; x++)
     {
         Cell **row = new Cell*[this->height];
         result[x] = row;
-        for (unsigned int y = 0; y < this->height; y++)
+        for (uint y = 0; y < this->height; y++)
         {
             result[x][y] = new Cell(x, y, {GAUSS, GAUSS, GAUSS, GAUSS});
         }
@@ -367,9 +367,9 @@ Cell *** Map::allocate_cells()
 
 void Map::free_cells(Cell ***cells)
 {
-    for (unsigned int x = 0; x < this->width; x++)
+    for (uint x = 0; x < this->width; x++)
     {
-        for (unsigned int y = 0; y < this->height; y++)
+        for (uint y = 0; y < this->height; y++)
         {
             delete cells[x][y];
         }
@@ -380,9 +380,9 @@ void Map::free_cells(Cell ***cells)
 
 void Map::copy_cells(Cell *** src, Cell *** dst)
 {
-    for (unsigned int x = 0; x < this->width; x++)
+    for (uint x = 0; x < this->width; x++)
     {
-        for (unsigned int y = 0; y < this->height; y++)
+        for (uint y = 0; y < this->height; y++)
         {
             *dst[x][y] = *src[x][y];
         }

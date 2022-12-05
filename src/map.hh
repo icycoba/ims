@@ -20,11 +20,11 @@
 class Map{
     private:
         // Map parameters
-        unsigned int width;
-        unsigned int height;
+        uint width;
+        uint height;
 
         // Map material
-        int elasticityLoop;
+        uint elasticityLoop;
         float elasticitySharing;
 
         // Map cells
@@ -33,14 +33,14 @@ class Map{
 
     public:
         // Constructor/destructor
-        Map(unsigned int width, unsigned int height);
+        Map(uint width, uint height);
         ~Map();
 
         // Getters
-        unsigned int get_width();
-        unsigned int get_height();
+        uint get_width();
+        uint get_height();
         Cell *** get_cells();
-        Cell get_cell(int x, int y);
+        Cell get_cell(uint x, uint y);
 
         void copy_cells(Cell *** src, Cell *** dst);
         Cell *** allocate_cells();
@@ -52,5 +52,5 @@ class Map{
 
         vector<pair<Cell*, double>> set_unstable();
 
-        unordered_map<string, Cell*> get_neigh(int x, int y);
+        unordered_map<string, Cell*> get_neigh(uint x, uint y);
 };

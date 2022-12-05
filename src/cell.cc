@@ -18,7 +18,7 @@ Cell::Cell(){
     this->state = CellState::Intact;
     this->stressSpectrum = {0, 0, 0, 0};
 }
-Cell::Cell(unsigned int i, unsigned int j, vector<double> stressSpectrum)
+Cell::Cell( uint i,  uint j, vector<double> stressSpectrum)
 {
     this->x = i;
     this->y = j;
@@ -32,7 +32,7 @@ Cell::~Cell(){
 
 Uint32 *Cell::get_pixel(SDL_Surface *surface)
 {
-    pair<int, int> coord = this->get_coordinates();
+    pair<uint, uint> coord = this->get_coordinates();
     // this was find on the internet, i have no idea how it works but it does
     return (Uint32 *)((Uint8 *)surface->pixels + coord.second * surface->pitch + coord.first * surface->format->BytesPerPixel);
 }
@@ -43,7 +43,7 @@ void Cell::set_pixel(SDL_Surface *surface, Uint32 color)
     *target_pixel = color;
 }
 
-pair<int, int> Cell::get_coordinates(){
+pair<uint, uint> Cell::get_coordinates(){
     return make_pair(this->x, this->y);
 }
 
@@ -57,14 +57,14 @@ vector<double> Cell::get_stress_spectrum(){
 
 double Cell::get_stress_avg(){
     double sum = 0;
-    for (int i = 0; i < 4; i++)
+    for (uint i = 0; i < 4; i++)
     {
         sum += this->stressSpectrum[i];
     }
     return sum / 4;
 }
 
-void Cell::set_coordinates(int x, int y){
+void Cell::set_coordinates(uint x, uint y){
     this->x = x;
     this->y = y;
 }
@@ -77,10 +77,10 @@ void Cell::set_stress_spectrum(vector<double> stressSpectrum){
     this->stressSpectrum = stressSpectrum;
 }
 
-int Cell::maximum_stress(){
-    int maxIndex = 0;
+uint Cell::maximum_stress(){
+    uint maxIndex = 0;
     double max = 0;
-    for (int i = 0; i < 4; i++){
+    for (uint i = 0; i < 4; i++){
         if (this->stressSpectrum[i] > max){
             maxIndex = i;
             max = this->stressSpectrum[i];

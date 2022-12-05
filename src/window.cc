@@ -41,12 +41,12 @@ SDL_Surface *Window::get_surf(){
 void Window::generate_starting_points()
 {
 	// prasácký statický int, aby se nám nezacyklil randomizer
-	static int i = 0;
+	static uint i = 0;
 	// prasácký cyklus, který vygeneruje random 10 bodů, kde začínají praskliny
 	for (; i < 10; i++)
 	{
-		int x = rand() % W_WIDTH;
-		int y = rand() % W_HEIGHT;
+		uint x = rand() % W_WIDTH;
+		uint y = rand() % W_HEIGHT;
 		this->map->get_cells()[x][y]->set_pixel(this->get_surf(), WHITE);
 		cout << "x: " << x << " y: " << y << endl;
 	}
@@ -83,7 +83,7 @@ void Window::run_window()
 				is_running = false;
 			else if (ev.type == SDL_MOUSEBUTTONDOWN)
 			{
-				int x, y;
+				uint x, y;
 				SDL_GetMouseState(&x, &y);
 				// Todo do we even want to make it crack on click? No we dont
 				this->map->get_cells()[x][y]->set_pixel(this->get_surf(), WHITE);

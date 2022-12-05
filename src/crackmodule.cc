@@ -10,7 +10,7 @@
 
 #include "crackmodule.hh"
 
-CrackModule::CrackModule(int x, int y, double kineticPotential, Direction direction){
+CrackModule::CrackModule(uint x, uint y, double kineticPotential, Direction direction){
     this->x = x;
     this->y = y;
     this->kineticPotential = kineticPotential * (1-MATERIAL_ELASTICITY_PERCENTAGE);
@@ -21,11 +21,11 @@ CrackModule::~CrackModule(){
     
 }
 
-int CrackModule::get_x(){
+uint CrackModule::get_x(){
     return this->x;
 }
 
-int CrackModule::get_y(){
+uint CrackModule::get_y(){
     return this->y;
 }
 
@@ -33,7 +33,7 @@ double CrackModule::get_kinetic_potential(){
     return this->kineticPotential;
 }
 
-pair<int, int> CrackModule::get_direction(){
+pair<uint, uint> CrackModule::get_direction(){
     return this->direction;
 }
 
@@ -45,7 +45,7 @@ void CrackModule::set_kinetic_potential(double kineticPotential){
     this->kineticPotential += kineticPotential;
 }
 
-void CrackModule::set_direction(pair<int, int> direction){
+void CrackModule::set_direction(pair<uint, uint> direction){
     this->direction = direction;
 }
 

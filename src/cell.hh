@@ -36,8 +36,8 @@ enum class CellState{
 class Cell{
     private:
         // Cell coordinates
-        int x;
-        int y;
+        uint x;
+        uint y;
 
         // Cell state
         CellState state; // Intact, Cracked
@@ -47,11 +47,11 @@ class Cell{
     public:
         // Constructor/destructor
         Cell();
-        Cell(unsigned int i, unsigned int j, vector<double> stressSpectrum);
+        Cell(uint i, uint j, vector<double> stressSpectrum);
         ~Cell();
 
         // Getters
-        pair<int, int> get_coordinates();
+        pair<uint, uint> get_coordinates();
         CellState get_state();
         vector<double> get_stress_spectrum();
         double get_stress_avg();
@@ -60,11 +60,11 @@ class Cell{
 
 
         // Setters
-        void set_coordinates(int x, int y);
+        void set_coordinates(uint x, uint y);
         void set_state(CellState state);
         void set_stress_spectrum(vector<double> stressSpectrum);
 
         void set_pixel(SDL_Surface *surface, Uint32 color);
         // Methods
-        int maximum_stress();
+        uint maximum_stress();
 };
