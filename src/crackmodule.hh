@@ -24,23 +24,28 @@ enum class Direction{
 
 class CrackModule{
     private:
-        uint x;
-        uint y;
+        int x;
+        int y;
 
         double kineticPotential;
-        pair<uint, uint> direction;
+        pair<int, int> direction;
         Direction directionEnum;
+        void set_direction(Direction direction_enum);
+
     public:
-        CrackModule(uint x, uint y, double kineticPotential, Direction direction);
+        CrackModule(uint x, uint y, double kineticPotential);
         ~CrackModule();
 
-        uint get_x();
-        uint get_y();
+        pair<int, int> get_coordinates();
         double get_kinetic_potential();
-        pair<uint, uint> get_direction();
         Direction get_direction_enum();
 
         void set_kinetic_potential(double kineticPotential);
-        void set_direction(pair<uint, uint> direction);
+        
         void set_direction_enum(Direction direction);
+
+        void move_in_direction();
 };
+
+Direction map_stress_field(uint index, bool head);
+pair<int, int> map_direction(Direction direction_enum);

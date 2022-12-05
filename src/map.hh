@@ -48,9 +48,9 @@ class Map{
         void stress_relaxation();
 
         // Methods
-        void apply_rule(SDL_Surface *new_surface, vector<pair<Cell*, double>> unstable);
+        void apply_rule(SDL_Surface *new_surface, vector<pair<Cell *, double>> *unstable_list, vector<pair<CrackModule*, CrackModule*>*> *crack_list);
 
-        vector<pair<Cell*, double>> set_unstable();
+        void set_unstable(vector<pair<Cell *, double>> *unstable_list);
 
         unordered_map<string, Cell*> get_neigh(uint x, uint y);
 };

@@ -21,243 +21,164 @@ bool stress_gt_tolerance(vector<double> stress, uint index){
     return stress[index] > MATERIAL_TOLERANCE - 4;
 
 }
+uint vector_length(pair<int, int> bgn, pair<int,int> end){
+    return abs(sqrt((end.first - bgn.first) * (end.first - bgn.first) + (end.second - bgn.second) * (end.second - bgn.second)));
+}
 
-/*void random_rule(){
-    Cell *** cells = this->get_cells();
-    vector<double> stress = cells[x][y]->get_stress_spectrum();   
+void CMCrack(CrackModule *cm, Cell*** cells, SDL_Surface *new_surface){
 
-    if (stress_gt_tolerance(stress,0))
-    {
-        cells[x+1][y]->set_state(CellState::Cracked);
-        cells[x-1][y]->set_state(CellState::Cracked);
-    }
-    if (stress_gt_tolerance(stress, 1))
-    {
-        cells[x+1][y-1]->set_state(CellState::Cracked);
-        cells[x-1][y+1]->set_state(CellState::Cracked);
-    }
-    if (stress_gt_tolerance(stress, 2))
-    {
-        cells[x][y+1]->set_state(CellState::Cracked);
-        cells[x][y-1]->set_state(CellState::Cracked);
-    }
-    if (stress_gt_tolerance(stress, 3))
-    {
-        cells[x+1][y+1]->set_state(CellState::Cracked);
-        cells[x-1][y-1]->set_state(CellState::Cracked);
-    }
-}*/
+    cerr << "ceakc step" << endl;
 
-void CMCrack(CrackModule cm, Cell*** cells, uint x, uint y, SDL_Surface *new_surface){
+    if (cm->get_direction_enum() == Direction::NONE){
+        cerr << "no move"<< endl;
+        return;
+    }
     //is cell cracked
     //cout << x << " " << y << endl;
-    if(x < 0 || y < 0){
-        return;
-    }
-    if(x >= 1000 || y >= 720){
-        return;
-    }
-    if (cells[x][y]->get_state() == CellState::Cracked)
+
+    cm->move_in_direction();
+    pair<int, int> here = cm->get_coordinates();
+
+    if (here.first <= 0 || here.second <= 0)
     {
-        cout << "r u crazy???" << endl;
+        cm->set_direction_enum(Direction::NONE);
+        cout << "not ostnsad vazne" << endl;
+        return;
+    }
+    if (here.first >= 1000 || here.second >= 720)
+    {
+        cm->set_direction_enum(Direction::NONE);
+        cout << "joe mama" << endl;
+        return;
+    }
+    if (cells[here.first][here.second]->get_state() == CellState::Cracked)
+    {
+        //cout << "r u crazy???" << endl;
+        cm->set_direction_enum(Direction::NONE);
+        cout << "ball crusher" << endl;
         return;
     }
     
-    cells[x][y]->set_pixel(new_surface, WHITE);
-    cells[x][y]->set_state(CellState::Cracked);
-    uint maxuintensityIndex = cells[x][y]->maximum_stress();
+    cells[here.first][here.second]->set_pixel(new_surface, WHITE);
 
-    uint xHead = x;
-    uint yHead = y;
-    uint xTail = x;
-    uint yTail = y;
+    uint maxIntensityIndex = cells[here.first][here.second]->maximum_stress();
 
-    Direction directionEnumHead = Direction::NONE;
-    Direction directionEnumTail = Direction::NONE;
-
-    switch (maxIntensityIndex)
-    {
-    case 0:
-        xHead = x + 1;
-        xTail = x - 1;
-        directionEnumHead = Direction::RIGHT;
-        directionEnumTail = Direction::LEFT;
-        break;
-    case 1:
-        xHead = x + 1;
-        xTail = x - 1;
-        yHead = y - 1;
-        yTail = y + 1;
-        directionEnumHead = Direction::TOP_RIGHT;
-        directionEnumTail = Direction::BOTTOM_LEFT;
-        break;
-    case 2:
-        yHead = y + 1;
-        yTail = y - 1;
-        directionEnumHead = Direction::BOTTOM;
-        directionEnumTail = Direction::TOP;
-        break;
-    case 3:
-        xHead = x + 1;
-        xTail = x - 1;
-        yHead = y + 1;
-        yTail = y - 1;
-        directionEnumHead = Direction::BOTTOM_RIGHT;
-        directionEnumTail = Direction::TOP_LEFT;
-        break;
-    default:
-        cout << "what???" << endl;
-        break;
-    }
-
-    double kineticPotential = cells[x][y]->get_stress_spectrum()[maxIntensityIndex];
+    double kineticPotential = cells[here.first][here.second]->get_stress_spectrum()[maxIntensityIndex];
     kineticPotential = (kineticPotential - MATERIAL_TOLERANCE) * 0.05;
-    cm.set_kinetic_potential(kineticPotential);
-    double temp = cm.get_kinetic_potential();
-    if(temp < 0.1){
+    cm->set_kinetic_potential(kineticPotential);
+    
+    if(cm->get_kinetic_potential() < 0.1){
         cout << "holdup" << endl;
+        cm->set_direction_enum(Direction::NONE);
         return;
     }
-    pair <uint, uint> direction;
 
-    if(cm.get_direction_enum() == Direction::TOP){
-        direction = make_pair(x,y-1);
-    } else if(cm.get_direction_enum() == Direction::TOP_RIGHT){
-        direction = make_pair(x+1,y-1);
-    } else if(cm.get_direction_enum() == Direction::RIGHT){
-        direction = make_pair(x+1,y);
-    } else if(cm.get_direction_enum() == Direction::BOTTOM_RIGHT){
-        direction = make_pair(x+1,y+1);
-    } else if(cm.get_direction_enum() == Direction::BOTTOM){
-        direction = make_pair(x,y+1);
-    } else if(cm.get_direction_enum() == Direction::BOTTOM_LEFT){
-        direction = make_pair(x-1,y+1);
-    } else if(cm.get_direction_enum() == Direction::LEFT){
-        direction = make_pair(x-1,y);
-    } else if(cm.get_direction_enum() == Direction::TOP_LEFT){
-        direction = make_pair(x-1,y-1);
-    } else if(cm.get_direction_enum() == Direction::NONE){
-        cout << "not possible" << endl;
+    // stress release
+
+    Direction head_direction = map_stress_field(maxIntensityIndex, true);
+    Direction tail_direction = map_stress_field(maxIntensityIndex, false);
+
+    pair<int, int> head_coord = map_direction(head_direction);
+    pair<int, int> tail_coord = map_direction(tail_direction);
+    pair<int, int> next_coord = map_direction(cm->get_direction_enum());
+
+    uint lengthHead = vector_length(make_pair(here.first + next_coord.first, here.second + next_coord.second), make_pair(here.first + head_coord.first, here.second + head_coord.second));
+    uint lengthTail = vector_length(make_pair(here.first + next_coord.first, here.second + next_coord.second), make_pair(here.first + tail_coord.first, here.second + tail_coord.second));
+
+    if (lengthHead == lengthTail){
+        // todo handle the T fork
+        cm->set_direction_enum(Direction::NONE);
+        cout << "forkec" << endl;
         return;
     }
+
+    lengthHead < lengthTail ? cm->set_direction_enum(head_direction) : cm->set_direction_enum(tail_direction);
 
     //cout << "=============================================" << endl;
     //cout << "direction: " << direction.first << " " << direction.second << endl;
     //cout << "xhead: "   << xHead << " yhead: " << yHead << endl;
     //cout << "xtail: "   << xTail << " ytail: " << yTail << endl;
     //cout << "=============================================" << endl;
-    uint lengthHead = abs(sqrt((direction.first-xHead)*(direction.first-xHead) + (direction.second-yHead)*(direction.second-yHead)));
-    uint lengthTail = abs(sqrt((direction.first-xTail)*(direction.first-xTail) + (direction.second-yTail)*(direction.second-yTail)));
+    
+    
     //cout << "lengthHead: " << lengthHead << endl;
     //cout << "lengthTail: " << lengthTail << endl;
-    /*if(lengthHead == lengthTail){
-        CrackModule cmHead = CrackModule(xHead, yHead, 14*14 //kineticPotential, directionEnumHead);
-        CMCrack(cmHead, cells, xHead, yHead, new_surface);
-        CrackModule cmTail = CrackModule(xTail, yTail, 14*14 //kineticPotential, directionEnumTail);
-        CMCrack(cmTail, cells, xTail, yTail, new_surface);
-    } else*/ if(lengthHead < lengthTail){
-        //cout << "here" << endl;
-        //cout << xHead << " " << yHead << endl;
-        cm.set_direction(make_pair(xHead, yHead));
-        //cm.set_direction_enum(directionEnumHead);
-        CMCrack(cm, cells, xHead, yHead, new_surface);
-    } else{
-        cm.set_direction(make_pair(xTail, yTail));
-        //cm.set_direction_enum(directionEnumTail);
-        CMCrack(cm, cells, xTail, yTail, new_surface);
-    }
 }
 
-
-void Map::apply_rule(SDL_Surface *new_surface, vector<pair<Cell*, double>> unstable)
+pair<CrackModule*, CrackModule*> *crack_birth(uint x, uint y, uint index)
 {
-    for (int i = 0; i < 150 ; i++){
-        if (i > unstable.size()){
-            break;
-        }
-    Cell *cell = unstable[i].first;
-    pair<int, int> coord = cell->get_coordinates();
-    int x = coord.first;
-    int y = coord.second;
-    Cell ***cells = this->get_cells();
 
-    // set pixel white
-    cell->set_pixel(new_surface, WHITE);
-    cell->set_state(CellState::Cracked);
+    uint starting_kinetic_potential = 196 * (1 - MATERIAL_ELASTICITY_PERCENTAGE);
+    CrackModule *cmHead = new CrackModule(x, y, starting_kinetic_potential);
+    CrackModule *cmTail = new CrackModule(x, y, starting_kinetic_potential);
 
-    int maxIntensityIndex = cell->maximum_stress();
+    cmHead->set_direction_enum(map_stress_field(index, true));
+    cmTail->set_direction_enum(map_stress_field(index, false));
 
-    int xHead = x;
-    int yHead = y;
-    int xTail = x;
-    int yTail = y;
-    Direction directionEnumHead = Direction::NONE;
-    Direction directionEnumTail = Direction::NONE;
-    
-    switch (maxIntensityIndex)
-    {
-    case 0:
-        xHead = x + 1;
-        xTail = x - 1;
-        directionEnumHead = Direction::RIGHT;
-        directionEnumTail = Direction::LEFT;
-        break;
-    case 1:
-        xHead = x + 1;
-        xTail = x - 1;
-        yHead = y - 1;
-        yTail = y + 1;
-        directionEnumHead = Direction::TOP_RIGHT;
-        directionEnumTail = Direction::BOTTOM_LEFT;
-        break;
-    case 2:
-        yHead = y + 1;
-        yTail = y - 1;
-        directionEnumHead = Direction::BOTTOM;
-        directionEnumTail = Direction::TOP;
-        break;
-    case 3:
-        xHead = x + 1;
-        xTail = x - 1;
-        yHead = y + 1;
-        yTail = y - 1;
-        directionEnumHead = Direction::BOTTOM_RIGHT;
-        directionEnumTail = Direction::TOP_LEFT;
-        break;
-    default:
-        break;
-    }
-    cout << xHead << " " << yHead << " " << xTail << " " << yTail << endl;
-
-    pair<int,int> directionHead = make_pair(xHead, yHead);
-    pair<int,int> directionTail = make_pair(xTail, yTail);
-
-    CrackModule cmHead = CrackModule(xHead, yHead, 14*14 /*kineticPotential*/, directionEnumHead);
-    CMCrack(cmHead, cells, xHead, yHead, new_surface);
-    CrackModule cmTail = CrackModule(xTail, yTail, 14*14 /*kineticPotential*/, directionEnumTail);
-    CMCrack(cmTail, cells, xTail, yTail, new_surface);
-    }
-
-
+    return new pair<CrackModule *, CrackModule *>(cmHead, cmTail);
 }
 
-vector<pair<Cell*, double>> Map::set_unstable(){
-    vector<pair<Cell*, double>> result;
-    for (unsigned int x = 0; x < this->width; x++)
+void Map::apply_rule(SDL_Surface *new_surface, vector<pair<Cell *, double>> *unstable_list, vector<pair<CrackModule*, CrackModule*>*> *crack_list)
+{
+    if(!unstable_list->empty()){
+
+        Cell *cell = unstable_list->back().first;
+        unstable_list->pop_back();
+        
+        pair<uint, uint> coord = cell->get_coordinates();
+
+        // set pixel white
+        cell->set_pixel(new_surface, WHITE);
+
+        uint maxIntensityIndex = cell->maximum_stress();
+        pair<CrackModule*, CrackModule*> *new_crack_pair = crack_birth(coord.first, coord.second, maxIntensityIndex);
+        crack_list->push_back(new_crack_pair);
+    }
+    else{
+        //cerr << "no unstable cells left" << endl;
+    }
+    if (!crack_list->empty()){
+        
+        Cell ***cells = this->get_cells();
+        for (vector<pair<CrackModule *, CrackModule *>*>::iterator crack_pair = crack_list->begin(); crack_pair != crack_list->end();)
+        {
+            cout << "dřez nuts" << endl;
+            CMCrack((*crack_pair)->first, cells, new_surface);
+            CMCrack((*crack_pair)->second, cells, new_surface);
+            if ((*crack_pair)->first->get_direction_enum() == Direction::NONE && (*crack_pair)->second->get_direction_enum() == Direction::NONE){
+                delete (*crack_pair)->first;
+                delete (*crack_pair)->second;
+                delete *crack_pair;
+                crack_pair = crack_list->erase(crack_pair);
+            }
+                
+            else
+                ++crack_pair;
+        }
+    }
+    else
     {
-        for (unsigned int y = 0; y < this->height; y++)
+        //cerr << "no CM left" << endl;
+    }
+}
+
+void Map::set_unstable(vector<pair<Cell *, double>> *unstable_list)
+{
+    for (uint x = 0; x < this->width; x++)
+    {
+        for (uint y = 0; y < this->height; y++)
         {
             if (this->cells[x][y]->get_state() != CellState::Cracked){
-                int maxIndex = this->cells[x][y]->maximum_stress();
+                uint maxIndex = this->cells[x][y]->maximum_stress();
                 double intensity = this->cells[x][y]->get_stress_spectrum()[maxIndex];
-                if ( (int)intensity > MATERIAL_TOLERANCE){
-                    result.push_back(pair<Cell*,double>(this->cells[x][y], intensity));
+                if ( (uint)intensity > MATERIAL_TOLERANCE + 2){
+                    cout << intensity << endl;
+                    unstable_list->push_back(pair<Cell*,double>(this->cells[x][y], intensity));
                 }
             }
             
         }
     }
-    return result;
 }
 
 void Map::stress_relaxation(){

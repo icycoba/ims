@@ -55,17 +55,17 @@ void Window::generate_starting_points()
 #include <algorithm>
 bool sortbysec(const pair<Cell *, double> &a, const pair<Cell *, double> &b)
 {
-	return (a.second > b.second);
+	return (a.second < b.second);
 }
 
 void Window::run_window()
 {
 
 	bool is_running = true;
-
-	vector<pair<Cell *, double>> unstable = this->map->set_unstable();
-	sort(unstable.begin(), unstable.end(), sortbysec);
-	this->map->apply_rule(this->get_surf(), unstable);
+	vector<pair<Cell *, double>> unstable_list;
+	this->map->set_unstable(&unstable_list);
+	sort(unstable_list.begin(), unstable_list.end(), sortbysec);
+	vector<pair<CrackModule*, CrackModule*>*> crack_list;
 
 	// for (size_t i=0; i<unstable.size(); i++)
 	// {
@@ -83,13 +83,13 @@ void Window::run_window()
 				is_running = false;
 			else if (ev.type == SDL_MOUSEBUTTONDOWN)
 			{
-				uint x, y;
+				int x, y;
 				SDL_GetMouseState(&x, &y);
 				// Todo do we even want to make it crack on click? No we dont
 				this->map->get_cells()[x][y]->set_pixel(this->get_surf(), WHITE);
 			}
 		}
-		
+		this->map->apply_rule(this->get_surf(), &unstable_list, &crack_list);
 		SDL_UpdateWindowSurface(window);
 	}
 }

@@ -41,6 +41,7 @@ void Cell::set_pixel(SDL_Surface *surface, Uint32 color)
 {
     Uint32 *const target_pixel = this->get_pixel(surface);
     *target_pixel = color;
+    this->set_state(CellState::Cracked);
 }
 
 pair<uint, uint> Cell::get_coordinates(){
