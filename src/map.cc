@@ -48,8 +48,196 @@ bool stress_gt_tolerance(vector<double> stress, int index){
     }
 }*/
 
-void Map::apply_rule(SDL_Surface *new_surface)
+void CMCrack(CrackModule cm, Cell*** cells, int x, int y, SDL_Surface *new_surface){
+    //is cell cracked
+    //cout << x << " " << y << endl;
+    if(x < 0 || y < 0){
+        return;
+    }
+    if(x >= 1000 || y >= 720){
+        return;
+    }
+    if (cells[x][y]->get_state() == CellState::Cracked)
+    {
+        cout << "r u crazy???" << endl;
+        return;
+    }
+    
+    cells[x][y]->set_pixel(new_surface, WHITE);
+    cells[x][y]->set_state(CellState::Cracked);
+    int maxIntensityIndex = cells[x][y]->maximum_stress();
+
+    int xHead = x;
+    int yHead = y;
+    int xTail = x;
+    int yTail = y;
+
+    Direction directionEnumHead = Direction::NONE;
+    Direction directionEnumTail = Direction::NONE;
+
+    switch (maxIntensityIndex)
+    {
+    case 0:
+        xHead = x + 1;
+        xTail = x - 1;
+        directionEnumHead = Direction::RIGHT;
+        directionEnumTail = Direction::LEFT;
+        break;
+    case 1:
+        xHead = x + 1;
+        xTail = x - 1;
+        yHead = y - 1;
+        yTail = y + 1;
+        directionEnumHead = Direction::TOP_RIGHT;
+        directionEnumTail = Direction::BOTTOM_LEFT;
+        break;
+    case 2:
+        yHead = y + 1;
+        yTail = y - 1;
+        directionEnumHead = Direction::BOTTOM;
+        directionEnumTail = Direction::TOP;
+        break;
+    case 3:
+        xHead = x + 1;
+        xTail = x - 1;
+        yHead = y + 1;
+        yTail = y - 1;
+        directionEnumHead = Direction::BOTTOM_RIGHT;
+        directionEnumTail = Direction::TOP_LEFT;
+        break;
+    default:
+        cout << "what???" << endl;
+        break;
+    }
+
+    double kineticPotential = cells[x][y]->get_stress_spectrum()[maxIntensityIndex];
+    kineticPotential = (kineticPotential - MATERIAL_TOLERANCE) * 0.05;
+    cm.set_kinetic_potential(kineticPotential);
+    double temp = cm.get_kinetic_potential();
+    if(temp < 0.1){
+        cout << "holdup" << endl;
+        return;
+    }
+    pair <int, int> direction;
+
+    if(cm.get_direction_enum() == Direction::TOP){
+        direction = make_pair(x,y-1);
+    } else if(cm.get_direction_enum() == Direction::TOP_RIGHT){
+        direction = make_pair(x+1,y-1);
+    } else if(cm.get_direction_enum() == Direction::RIGHT){
+        direction = make_pair(x+1,y);
+    } else if(cm.get_direction_enum() == Direction::BOTTOM_RIGHT){
+        direction = make_pair(x+1,y+1);
+    } else if(cm.get_direction_enum() == Direction::BOTTOM){
+        direction = make_pair(x,y+1);
+    } else if(cm.get_direction_enum() == Direction::BOTTOM_LEFT){
+        direction = make_pair(x-1,y+1);
+    } else if(cm.get_direction_enum() == Direction::LEFT){
+        direction = make_pair(x-1,y);
+    } else if(cm.get_direction_enum() == Direction::TOP_LEFT){
+        direction = make_pair(x-1,y-1);
+    } else if(cm.get_direction_enum() == Direction::NONE){
+        cout << "not possible" << endl;
+        return;
+    }
+
+    //cout << "=============================================" << endl;
+    //cout << "direction: " << direction.first << " " << direction.second << endl;
+    //cout << "xhead: "   << xHead << " yhead: " << yHead << endl;
+    //cout << "xtail: "   << xTail << " ytail: " << yTail << endl;
+    //cout << "=============================================" << endl;
+    int lengthHead = abs(sqrt((direction.first-xHead)*(direction.first-xHead) + (direction.second-yHead)*(direction.second-yHead)));
+    int lengthTail = abs(sqrt((direction.first-xTail)*(direction.first-xTail) + (direction.second-yTail)*(direction.second-yTail)));
+    //cout << "lengthHead: " << lengthHead << endl;
+    //cout << "lengthTail: " << lengthTail << endl;
+    /*if(lengthHead == lengthTail){
+        CrackModule cmHead = CrackModule(xHead, yHead, 14*14 //kineticPotential, directionEnumHead);
+        CMCrack(cmHead, cells, xHead, yHead, new_surface);
+        CrackModule cmTail = CrackModule(xTail, yTail, 14*14 //kineticPotential, directionEnumTail);
+        CMCrack(cmTail, cells, xTail, yTail, new_surface);
+    } else*/ if(lengthHead < lengthTail){
+        //cout << "here" << endl;
+        //cout << xHead << " " << yHead << endl;
+        cm.set_direction(make_pair(xHead, yHead));
+        //cm.set_direction_enum(directionEnumHead);
+        CMCrack(cm, cells, xHead, yHead, new_surface);
+    } else{
+        cm.set_direction(make_pair(xTail, yTail));
+        //cm.set_direction_enum(directionEnumTail);
+        CMCrack(cm, cells, xTail, yTail, new_surface);
+    }
+}
+
+
+void Map::apply_rule(SDL_Surface *new_surface, vector<pair<Cell*, double>> unstable)
 {
+    for (int i = 0; i < 150 ; i++){
+        if (i > unstable.size()){
+            break;
+        }
+    Cell *cell = unstable[i].first;
+    pair<int, int> coord = cell->get_coordinates();
+    int x = coord.first;
+    int y = coord.second;
+    Cell ***cells = this->get_cells();
+
+    // set pixel white
+    cell->set_pixel(new_surface, WHITE);
+    cell->set_state(CellState::Cracked);
+
+    int maxIntensityIndex = cell->maximum_stress();
+
+    int xHead = x;
+    int yHead = y;
+    int xTail = x;
+    int yTail = y;
+    Direction directionEnumHead = Direction::NONE;
+    Direction directionEnumTail = Direction::NONE;
+    
+    switch (maxIntensityIndex)
+    {
+    case 0:
+        xHead = x + 1;
+        xTail = x - 1;
+        directionEnumHead = Direction::RIGHT;
+        directionEnumTail = Direction::LEFT;
+        break;
+    case 1:
+        xHead = x + 1;
+        xTail = x - 1;
+        yHead = y - 1;
+        yTail = y + 1;
+        directionEnumHead = Direction::TOP_RIGHT;
+        directionEnumTail = Direction::BOTTOM_LEFT;
+        break;
+    case 2:
+        yHead = y + 1;
+        yTail = y - 1;
+        directionEnumHead = Direction::BOTTOM;
+        directionEnumTail = Direction::TOP;
+        break;
+    case 3:
+        xHead = x + 1;
+        xTail = x - 1;
+        yHead = y + 1;
+        yTail = y - 1;
+        directionEnumHead = Direction::BOTTOM_RIGHT;
+        directionEnumTail = Direction::TOP_LEFT;
+        break;
+    default:
+        break;
+    }
+    cout << xHead << " " << yHead << " " << xTail << " " << yTail << endl;
+
+    pair<int,int> directionHead = make_pair(xHead, yHead);
+    pair<int,int> directionTail = make_pair(xTail, yTail);
+
+    CrackModule cmHead = CrackModule(xHead, yHead, 14*14 /*kineticPotential*/, directionEnumHead);
+    CMCrack(cmHead, cells, xHead, yHead, new_surface);
+    CrackModule cmTail = CrackModule(xTail, yTail, 14*14 /*kineticPotential*/, directionEnumTail);
+    CMCrack(cmTail, cells, xTail, yTail, new_surface);
+    }
+
 
 }
 

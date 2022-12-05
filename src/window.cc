@@ -65,6 +65,7 @@ void Window::run_window()
 
 	vector<pair<Cell *, double>> unstable = this->map->set_unstable();
 	sort(unstable.begin(), unstable.end(), sortbysec);
+	this->map->apply_rule(this->get_surf(), unstable);
 
 	// for (size_t i=0; i<unstable.size(); i++)
 	// {
@@ -88,7 +89,7 @@ void Window::run_window()
 				this->map->get_cells()[x][y]->set_pixel(this->get_surf(), WHITE);
 			}
 		}
-		this->map->apply_rule(this->get_surf());
+		
 		SDL_UpdateWindowSurface(window);
 	}
 }

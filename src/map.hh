@@ -48,7 +48,7 @@ class Map{
         void stress_relaxation();
 
         // Methods
-        void apply_rule(SDL_Surface *new_surface);
+        void apply_rule(SDL_Surface *new_surface, vector<pair<Cell*, double>> unstable);
 
         vector<pair<Cell*, double>> set_unstable();
 
