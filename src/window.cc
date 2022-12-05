@@ -38,20 +38,6 @@ SDL_Surface *Window::get_surf(){
 	return SDL_GetWindowSurface(this->window);
 }
 
-void Window::generate_starting_points()
-{
-	// prasácký statický int, aby se nám nezacyklil randomizer
-	static int i = 0;
-	// prasácký cyklus, který vygeneruje random 10 bodů, kde začínají praskliny
-	for (; i < 10; i++)
-	{
-		int x = rand() % W_WIDTH;
-		int y = rand() % W_HEIGHT;
-		this->map->get_cells()[x][y]->set_pixel(this->get_surf(), WHITE);
-		cout << "x: " << x << " y: " << y << endl;
-	}
-}
-
 #include <algorithm>
 bool sortbysec(const pair<Cell *, double> &a, const pair<Cell *, double> &b)
 {
@@ -67,29 +53,13 @@ void Window::run_window()
 	sort(unstable.begin(), unstable.end(), sortbysec);
 	this->map->apply_rule(this->get_surf(), unstable);
 
-	// for (size_t i=0; i<unstable.size(); i++)
-	// {
-	//     // "first" and "second" are used to access
-	//     // 1st and 2nd element of pair respectively
-	//     cout << unstable[i].first << " " << unstable[i].second << endl;
-	// }
-
 	while (is_running)
 	{
-		// this->generate_starting_points();
 		while (SDL_PollEvent(&(this->ev)) != 0)
 		{
 			if (ev.type == SDL_QUIT)
 				is_running = false;
-			else if (ev.type == SDL_MOUSEBUTTONDOWN)
-			{
-				int x, y;
-				SDL_GetMouseState(&x, &y);
-				// Todo do we even want to make it crack on click? No we dont
-				this->map->get_cells()[x][y]->set_pixel(this->get_surf(), WHITE);
-			}
-		}
-		
+		}	
 		SDL_UpdateWindowSurface(window);
 	}
 }

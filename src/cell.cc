@@ -33,7 +33,6 @@ Cell::~Cell(){
 Uint32 *Cell::get_pixel(SDL_Surface *surface)
 {
     pair<int, int> coord = this->get_coordinates();
-    // this was find on the internet, i have no idea how it works but it does
     return (Uint32 *)((Uint8 *)surface->pixels + coord.second * surface->pitch + coord.first * surface->format->BytesPerPixel);
 }
 
